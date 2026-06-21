@@ -1,15 +1,25 @@
-import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import CalendarPage from './pages/CalendarPage'
+import { Provider } from 'react-redux';
+import { store } from './app/redux/store';
+
+import ThemeProvider from './app/providers/theme/ThemeProvider';
+import AntdProvider from './app/providers/antd/AntdProvider';
+
+import { RouterProvider } from 'react-router-dom';
+import { router } from './app/router/routes';
+import AppInit from './app/init/AppInit';
+
+
 
 function App() {
-     return <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/calendar" element={<CalendarPage />} />
-    </Routes>
+  return <Provider store={store}>
+      <ThemeProvider>
+        <AntdProvider>
+          <AppInit>
+            <RouterProvider router={router} />
+          </AppInit>
+        </AntdProvider>
+      </ThemeProvider>
+    </Provider>
 }
 export default App
