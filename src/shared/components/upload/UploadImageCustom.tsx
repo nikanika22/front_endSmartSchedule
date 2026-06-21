@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { uploadApi } from '@/features/upload/api/upload-api';
+// import { uploadApi } from '@/features/upload/api/upload-api';
 
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 
@@ -34,13 +34,19 @@ const UploadImageCustom = ({
 
       formData.append('file', options.file as File);
 
-      const res = await uploadApi.uploadImage(formData);
+      // const res = await uploadApi.uploadImage(formData);
 
-      const imageUrl = res.data.url;
+      // const imageUrl = res.data.url;
 
-      onChange?.(imageUrl);
+      // onChange?.(imageUrl);
 
-      options.onSuccess?.(res);
+      // options.onSuccess?.(res);
+      
+      // Giả lập upload thành công
+      setTimeout(() => {
+        onChange?.('https://via.placeholder.com/150');
+        options.onSuccess?.('ok');
+      }, 1000);
     } catch (error) {
       options.onError?.(error as Error);
     } finally {

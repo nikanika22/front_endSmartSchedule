@@ -9,7 +9,7 @@ export const useNotification = () => {
     description?: string,
   ) => {
     notification[type]({
-      title,
+      message: title,
       description,
     });
   };
