@@ -1,6 +1,5 @@
 import type { FormField } from '@/shared/components/modal/ModalFormCustom';
 import { FormFieldType } from '@/shared/types/form-field-type';
-import { rules } from '@/shared/utils/rules';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import type { LoginPayLoad } from '../types/auth-type';
 
@@ -13,10 +12,10 @@ export const loginFormFields: FormField<LoginPayLoad>[] = [
     icon: MailOutlined,
     rules: [
       {
-        required: true,
-        message: 'Vui lòng nhập email',
+        require: true,
+       pattern: /^dh\d+@student\.stu\.edu\.vn$/,
+        message: 'Email phải thuộc trường STU, ví dụ: dh52200762@student.stu.edu.vn',
       },
-      rules.email,
     ],
     col: 24,
   },
@@ -26,12 +25,13 @@ export const loginFormFields: FormField<LoginPayLoad>[] = [
     type: FormFieldType.InputPassword,
     placeholder: 'Nhập mật khẩu',
     icon: LockOutlined,
-    rules: [
+     rules: [
+      { required: true, message: 'Vui lòng nhập mật khẩu' },
+      { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự.' },
       {
-        required: true,
-        message: 'Vui lòng nhập mật khẩu',
+        pattern: /(?=.*[A-Z])(?=.*\d)/,
+        message: 'Mật khẩu phải có ít nhất 1 chữ hoa và 1 số.',
       },
-      rules.password,
     ],
     col: 24,
   },

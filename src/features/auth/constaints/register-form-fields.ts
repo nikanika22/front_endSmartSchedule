@@ -7,6 +7,21 @@ import type { FormInstance, RuleObject } from 'antd/es/form';
 
 
 export const registerFormFields: FormField<RegisterPayload>[] = [
+    {
+        name: 'massv',
+        label: 'Mã sinh viên',
+        type: FormFieldType.Input,
+        placeholder: 'Nhập mã sinh viên',
+        icon: MailOutlined,
+        rules: [
+            {
+               pattern: /^DH\d{6,15}$/i, 
+               message: 'MSSV sai định dạng. Ví dụ đúng: DH52200762',
+               required: true,
+            },
+        ],
+        col: 24,
+    },
   {
     name: 'fullName',
     label: 'Họ và tên',
@@ -14,10 +29,9 @@ export const registerFormFields: FormField<RegisterPayload>[] = [
     placeholder: 'Nhập họ và tên',
     icon: MailOutlined,
     rules: [
-      {
-        required: true,
-        message: 'Vui lòng nhập họ và tên',
-      },
+      { required: true, message: 'Vui lòng nhập họ tên' },
+      { min: 2, message: 'Họ tên phải có ít nhất 2 ký tự' },
+      { max: 100, message: 'Họ tên không được vượt quá 100 ký tự' }
     ],
     col: 24,
   },
@@ -28,11 +42,11 @@ export const registerFormFields: FormField<RegisterPayload>[] = [
     placeholder: 'Nhập email',
     icon: MailOutlined,
     rules: [
+      { required: true, message: 'Vui lòng nhập email' },
       {
-        required: true,
-        message: 'Vui lòng nhập email',
+        pattern: /^dh\d+@student\.stu\.edu\.vn$/,
+        message: 'Email phải thuộc trường STU, ví dụ: dh52200762@student.stu.edu.vn',
       },
-      rules.email,
     ],
     col: 24,
   },
@@ -43,11 +57,12 @@ export const registerFormFields: FormField<RegisterPayload>[] = [
     placeholder: 'Nhập mật khẩu',
     icon: LockOutlined,
     rules: [
+      { required: true, message: 'Vui lòng nhập mật khẩu' },
+      { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự.' },
       {
-        required: true,
-        message: 'Vui lòng nhập mật khẩu',
+        pattern: /(?=.*[A-Z])(?=.*\d)/,
+        message: 'Mật khẩu phải có ít nhất 1 chữ hoa và 1 số.',
       },
-      rules.password,
     ],
     col: 24,
   },

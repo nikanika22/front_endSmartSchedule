@@ -3,8 +3,16 @@ export type LoginPayLoad={
    password:string,  
 };
 export type RegisterPayload={
+    massv:string;
     fullName: string;
     email: string;
     password: string;
     confirmPassword: string;
 };
+
+export type RegisterApiPayload = {
+    student_id: string;
+    name: string;
+    email: string;
+    password: string;
+};  

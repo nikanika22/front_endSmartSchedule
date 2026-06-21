@@ -5,6 +5,7 @@ import LoginPage from '@/features/auth/pages/Loginpage';
 import ProtectedRoute from './ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
 import DashBoard from '@/features/Dashboard/Pages/DashBoard';
+import RegisterPage from '@/features/auth/pages/RegisterPage';
 export const router = createBrowserRouter([
   /******************** AUTH *********************/
   {
@@ -18,6 +19,10 @@ export const router = createBrowserRouter([
             path: 'login',
             element: <LoginPage />,
           },
+          {
+            path:'register',
+            element: <RegisterPage/>
+          }
         ],
       },
     ],

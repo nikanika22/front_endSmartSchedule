@@ -72,7 +72,7 @@ const Loginpage = () => {
       </div>
 
       <div className="mt-8 text-center">
-        <span className="text-xs text-gray-400">© 2026 YOEDU. Hệ thống quản lý đào tạo.</span>
+        <span className="text-xs text-gray-400">Hệ thống quản lý học tập</span>
       </div>
     </CardCustom>
   );

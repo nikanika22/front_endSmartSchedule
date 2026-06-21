@@ -8,8 +8,9 @@ export const axiosClient = axios.create({
   },
 });
 
-// Add a request interceptor to include the access token in headers
+// Gửi token kèm theo request
 axiosClient.interceptors.request.use((config) => {
+  // Đảm bảo tên key trùng khớp với auth-slice (ví dụ: 'accessToken')
   const accessToken = localStorage.getItem('accessToken');
 
   if (accessToken) {
@@ -19,87 +20,19 @@ axiosClient.interceptors.request.use((config) => {
   return config;
 });
 
-let isRefreshing = false;
-
-let failedQueue: {
-  resolve: (token: string) => void;
-  reject: (error: any) => void;
-}[] = [];
-
-const processQueue = (error: any, token?: string) => {
-  failedQueue.forEach((promise) => {
-    if (error) {
-      promise.reject(error);
-    } else {
-      promise.resolve(token!);
-    }
-  });
-
-  failedQueue = [];
-};
-
+// Xử lý khi có lỗi phản hồi từ Server
 axiosClient.interceptors.response.use(
   (response) => response,
-
   async (error) => {
-    const originalRequest = error.config;
+    // Nếu gặp lỗi 401 Unauthorized (Token sai hoặc hết hạn)
+    if (error.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+      // 1. Xóa token lỗi khỏi localStorage
+      localStorage.removeItem('accessToken');
 
-    if (error.response?.status === HTTP_STATUS.UNAUTHORIZED && !originalRequest._retry) {
-      /**
-       * Nếu đang refresh thì request hiện tại
-       * chờ refresh xong rồi chạy lại
-       */
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: (token: string) => {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              resolve(axiosClient(originalRequest));
-            },
-            reject,
-          });
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-
-        if (!refreshToken) {
-          throw new Error('Refresh token not found');
-        }
-
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh-token`, {
-          refreshToken,
-        });
-
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-
-        localStorage.setItem('accessToken', accessToken);
-
-        localStorage.setItem('refreshToken', newRefreshToken);
-
-        processQueue(null, accessToken);
-
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
-        return axiosClient(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError);
-
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-
-        window.location.href = '/auth/login';
-
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+      // 2. Chuyển hướng người dùng về trang Đăng nhập
+      window.location.href = '/auth/login';
     }
 
     return Promise.reject(error);
-  },
+  }
 );

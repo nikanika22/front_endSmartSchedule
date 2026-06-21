@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import { loginApi, registerApi } from '../api/auth-api';
-import type { LoginPayLoad, RegisterPayload } from '../types/auth-type';
+import type { LoginPayLoad, RegisterPayload, RegisterApiPayload } from '../types/auth-type';
 import { userRoleUserApi } from '@/features/students/api/user-api';
 export const loginThunk = createAsyncThunk(
   'auth/login',
@@ -17,7 +17,7 @@ export const loginThunk = createAsyncThunk(
 
 export const registerThunk = createAsyncThunk(
   'auth/register',
-  async (payload: Omit<RegisterPayload, 'confirmPassword'>, thunkAPI) => {
+  async (payload: RegisterApiPayload, thunkAPI) => {
     try {
       const res = await registerApi(payload);
       return res;
