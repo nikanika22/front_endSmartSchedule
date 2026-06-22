@@ -8,9 +8,6 @@ import {
   BookOutlined,
   AuditOutlined,
   ReadOutlined,
-  WalletOutlined,
-  ScheduleOutlined,
-  CalendarOutlined,
 } from '@ant-design/icons';
 import STU_Logo from '@/assets/images/imageSTU.png';
 import { useTheme } from '@/app/providers/theme/hooks/useTheme';
@@ -58,11 +55,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
           label: 'Học viên',
         },
         {
-          key: '/parents',
-          icon: <TeamOutlined />,
-          label: 'Phụ huynh',
-        },
-        {
           key: '/teachers',
           icon: <SolutionOutlined />,
           label: 'Giáo viên',
@@ -71,76 +63,22 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
     },
     {
       key: 'academic-management',
-      label: 'Quản lý đào tạo',
+      label: 'Quản lý Cá Nhân',
       icon: <BookOutlined />,
       children: [
         {
-          key: '/rooms',
+          key: '/courses',
           icon: <SolutionOutlined />,
-          label: 'Phòng học',
+          label: 'Khóa học của tôi',
         },
         {
           key: '/schedules',
-          icon: <ScheduleOutlined />,
-          label: 'Ca học',
-        },
-        {
-          key: '/courses',
           icon: <ReadOutlined />,
-          label: 'Khóa đào tạo',
-        },
-        {
-          key: '/course-classes',
-          icon: <ReadOutlined />,
-          label: 'Lớp học',
-        },
-        {
-          key: '/enrollments',
-          icon: <SolutionOutlined />,
-          label: 'Tuyển sinh',
-        },
-        {
-          key: '/course-class-sessions',
-          icon: <CalendarOutlined />,
-          label: 'Lịch học',
-        },
-        {
-          key: '/calendar',
-          icon: <CalendarOutlined />,
-          label: 'Calendars',
-        },
-        {
-          key: '/leave-requests',
-          icon: <AuditOutlined />,
-          label: 'Đơn xin nghỉ',
-        },
-      ],
-    },
-    {
-      key: 'finance',
-      label: 'Quản lý học phí',
-      icon: <WalletOutlined />,
-      roles: [USER_ROLE.ADMIN, USER_ROLE.ADMIN], // Chỉ admin và manager mới thấy menu này
-      children: [
-        {
-          key: '/tuition-invoices',
-          icon: <WalletOutlined />,
-          label: 'Hóa đơn học phí',
-        },
-        {
-          key: '/payments',
-          icon: <WalletOutlined />,
-          label: 'Thanh toán',
-        },
-        {
-          key: '/promotions',
-          icon: <WalletOutlined />,
-          label: 'Chương trình khuyến mãi',
+          label: 'Lịch học của tôi',
         },
       ],
     },
   ];
-
   const filterMenuByRole = (items: MenuItem[], role?: UserRole): MenuItem[] => {
     return (
       items

@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
 import DashBoard from '@/features/Dashboard/Pages/DashBoard';
 import RegisterPage from '@/features/auth/pages/RegisterPage';
+import CoursePage from '@/features/courses/pages/CoursePage';
 export const router = createBrowserRouter([
   /******************** AUTH *********************/
   {
@@ -39,6 +40,8 @@ export const router = createBrowserRouter([
             index: true,
             element: <DashBoard />,
           },
+          { path: '/courses',
+           element: <CoursePage/> },
      ],
       },
     ],
