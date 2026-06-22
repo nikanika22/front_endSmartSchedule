@@ -3,7 +3,6 @@ import { type Course } from '../types/course-type';
 import { Table, Button, message } from 'antd';
 import { courseRoleAdminApi } from '../api/course-api';
 import { enrollmentApi } from '@/features/enrollments/api/enrollment-api';
-import PageHeader from '@/shared/components/page/PageHeader';
 
 const CoursePage = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -35,16 +34,11 @@ const CoursePage = () => {
 
     try {
       setEnrolling(true);
-      // Giả định bạn đang đăng ký cho học kỳ hiện tại là 'SEM01'
-      // Bạn có thể đổi lại mã học kỳ thực tế trong Database để không bị lỗi.
-      const semester_id = 'SEM01'; 
-      
       // Gọi API đăng ký song song cho nhiều môn
       await Promise.all(
         selectedRowKeys.map((course_id) =>
           enrollmentApi.create({
             course_id: course_id.toString(),
-            semester_id,
           })
         )
       );
