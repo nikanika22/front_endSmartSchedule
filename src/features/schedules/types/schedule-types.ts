@@ -1,12 +1,12 @@
 import type { PersonalEvent } from '@/features/schedule-config/types';
-import type { Course } from '@/features/courses/types/course-type';
 
 // Re-export for convenience within the feature
-export type { PersonalEvent, Course };
+export type { PersonalEvent };
 
 export interface ClassScheduleItem {
   class_id: string;
   course_id: string;
+  course_name?: string;
   semester_id: string;
   day_of_week: number;
   start_time: string;

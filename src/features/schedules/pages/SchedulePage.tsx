@@ -23,15 +23,16 @@ const getFCDay = (day: number): number => (day === 8 ? 0 : day - 1);
 const buildCalendarEvents = (
   classes: ClassScheduleItem[],
   personalEvents: PersonalEvent[],
-  courseMap: Record<string, string>,
 ) => {
   const events: any[] = [];
 
   classes.forEach((cls) => {
-    const courseName = courseMap[cls.course_id] ?? cls.course_id;
+    const courseName = cls.course_name || '';
+    const titleText = courseName 
+      ? `${courseName}\nMã lớp: ${cls.class_id}\nPhòng: ${cls.room || 'N/A'}\nGV: ${cls.instructor || 'N/A'}`
+      : `${cls.class_id}\nPhòng: ${cls.room || 'N/A'}\nGV: ${cls.instructor || 'N/A'}`;
     events.push({
-      id: `class-${cls.class_id}`,
-      title: `${courseName}\nLớp: ${cls.class_id}\nPhòng: ${cls.room || 'N/A'}\nGV: ${cls.instructor || 'N/A'}`,
+      title: titleText,
       daysOfWeek: [getFCDay(cls.day_of_week)],
       startTime: cls.start_time,
       endTime: cls.end_time,
@@ -98,16 +99,9 @@ const SchedulePage: React.FC = () => {
     error,
   } = useAppSelector((s) => s.schedules);
 
-  // personalEvents để hiện lịch cá nhân overlay lên calendar
   const personalEvents = useAppSelector((s) => s.scheduleConfig.personalEvents);
 
-  // courseMap tạm thời (course_id -> course_name) — sẽ được làm đầy từ solutions
-  const courseMap: Record<string, string> = {};
-  solutions.forEach((sol) => {
-    sol.classes.forEach((cls) => {
-      if (!courseMap[cls.course_id]) courseMap[cls.course_id] = cls.course_id;
-    });
-  });
+
 
   useEffect(() => {
     const fromEnroll = (location.state as any)?.fromEnroll;
@@ -167,9 +161,11 @@ const SchedulePage: React.FC = () => {
 
   // ── Confirmed schedule (READ-ONLY) ──────────────────────────────
   if (confirmedSchedule) {
+    console.log('Dữ liệu Lịch đã xác nhận (confirmedSchedule) từ BE:', confirmedSchedule);
     const classes: ClassScheduleItem[] = confirmedSchedule.scheduleClasses?.map((sc: any) => ({
       class_id: sc.class_id,
       course_id: sc.class?.course_id ?? sc.class_id,
+      course_name: sc.class?.course_name ?? sc.class?.course?.course_name ?? '',
       semester_id: confirmedSchedule.semester_id,
       day_of_week: sc.class?.day_of_week ?? 2,
       start_time: sc.class?.start_time ?? '07:00',
@@ -199,11 +195,28 @@ const SchedulePage: React.FC = () => {
             allDaySlot={false}
             height="auto"
             locale="vi"
-            events={buildCalendarEvents(classes, personalEvents, courseMap)}
+            events={buildCalendarEvents(classes, personalEvents)}
             headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
             buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
             firstDay={1}
             dayHeaderFormat={{ weekday: 'long' }}
+            eventContent={(arg) => {
+              const lines = arg.event.title.split('\n');
+              const mainTitle = lines[0];
+              const details = lines.slice(1);
+              return (
+                <div className="p-1 text-[11px] overflow-hidden h-full leading-snug flex flex-col justify-between text-white">
+                  <div>
+                    <div className="font-bold line-clamp-2 mb-0.5">{mainTitle}</div>
+                    {details.map((line, i) => (
+                      <div key={i} className="opacity-90 font-normal text-[10px] truncate">
+                        {line}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }}
           />
         </CardCustom>
       </div>
@@ -311,16 +324,28 @@ const SchedulePage: React.FC = () => {
                 allDaySlot={false}
                 height="auto"
                 locale="vi"
-                events={buildCalendarEvents(activeSolution.classes, personalEvents, courseMap)}
+                events={buildCalendarEvents(activeSolution.classes, personalEvents)}
                 headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
                 buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
                 firstDay={1}
                 dayHeaderFormat={{ weekday: 'long' }}
-                eventContent={(arg) => (
-                  <div className="p-1 text-xs overflow-hidden h-full leading-tight">
-                    <div className="font-bold whitespace-pre-wrap">{arg.event.title}</div>
-                  </div>
-                )}
+                eventContent={(arg) => {
+                  const lines = arg.event.title.split('\n');
+                  const mainTitle = lines[0];
+                  const details = lines.slice(1);
+                  return (
+                    <div className="p-1 text-[11px] overflow-hidden h-full leading-snug flex flex-col justify-between text-white">
+                      <div>
+                        <div className="font-bold line-clamp-2 mb-0.5">{mainTitle}</div>
+                        {details.map((line, i) => (
+                          <div key={i} className="opacity-90 font-normal text-[10px] truncate">
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }}
               />
             </div>
           </CardCustom>
