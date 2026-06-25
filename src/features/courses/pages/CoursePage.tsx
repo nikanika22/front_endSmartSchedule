@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
 import { generateScheduleThunk } from '@/features/schedules/store/schedules-thunk';
 import { useNotification } from '@/shared/hooks/useNotification';
 import PageHeader from '@/shared/components/page/PageHeader';
+import { scheduleApi } from '@/features/schedules/api/schedule-api';
+import { ReadOutlined } from '@ant-design/icons';
 
 const CoursePage = () => {
   const navigate = useNavigate();
@@ -18,49 +20,65 @@ const CoursePage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [enrolling, setEnrolling] = useState<boolean>(false);
+  const [activeSemesterId, setActiveSemesterId] = useState<string>('');
 
   // Theo dõi trạng thái generate từ Redux
   const generateStatus = useAppSelector((s) => s.schedules.generateStatus);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const initPage = async () => {
       try {
         setLoading(true);
-        const data = await courseRoleAdminApi.getAll();
-        setCourses(data);
+        const [coursesData, semesterRes, myEnrollments] = await Promise.all([
+          courseRoleAdminApi.getAll(),
+          scheduleApi.getActiveSemester(),
+          enrollmentApi.getMyEnrollments(),
+        ]);
+        setCourses(coursesData);
+        if (semesterRes?.semester_id) {
+          setActiveSemesterId(semesterRes.semester_id);
+        }
+
+        // Pre-tick các môn đã đăng ký
+        const enrolledIds = myEnrollments.map((e: any) => e.course_id);
+        setSelectedRowKeys(enrolledIds);
       } catch (error) {
-        console.error('Failed to fetch courses:', error);
+        console.error('Failed to fetch initial data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchCourses();
+    initPage();
   }, []);
 
   const handleEnroll = async () => {
-    if (selectedRowKeys.length === 0) {
-      showNotification('warning', 'Chưa chọn môn học', 'Vui lòng chọn ít nhất 1 môn học!');
+    if (!activeSemesterId) {
+      showNotification('error', 'Lỗi học kỳ', 'Không tìm thấy học kỳ hoạt động. Vui lòng tải lại trang!');
       return;
     }
 
     try {
       setEnrolling(true);
 
-      // Bước 1: Đăng ký môn học (song song)
+      // Bước 1: Xóa toàn bộ enrollment cũ
+      await enrollmentApi.deleteMyEnrollments();
+
+      // Bước 2: Tạo lại theo selection hiện tại (song song)
       await Promise.all(
         selectedRowKeys.map((course_id) =>
-          enrollmentApi.create({ course_id: course_id.toString() })
+          enrollmentApi.create({
+            course_id: course_id.toString(),
+            semester_id: activeSemesterId,
+          })
         )
       );
 
       showNotification('success', 'Đăng ký thành công!', 'Hệ thống đang sinh lịch học tối ưu...');
-      setSelectedRowKeys([]);
 
-      // Bước 2: Dispatch generate schedule vào Redux TRƯỚC khi navigate
-      // SchedulePage sẽ đọc kết quả từ store (không gọi API lại)
-      dispatch(generateScheduleThunk({ semester_id: '', max_solutions: 3 }));
+      // Bước 3: Dispatch generate schedule vào Redux TRƯỚC khi navigate
+      dispatch(generateScheduleThunk({ semester_id: activeSemesterId, max_solutions: 3 }));
 
-      // Bước 3: Navigate sang SchedulePage, báo hiệu đến từ CoursePage
+      // Bước 4: Navigate sang SchedulePage, báo hiệu đến từ CoursePage
       navigate('/schedules', { state: { fromEnroll: true } });
     } catch (error: any) {
       console.error('Lỗi khi đăng ký:', error);
@@ -109,6 +127,7 @@ const CoursePage = () => {
       <PageHeader
         title="Đăng ký môn học"
         subtitle="Chọn các môn học bạn muốn đăng ký trong học kỳ này"
+        icon={<ReadOutlined />}
         extra={
           selectedRowKeys.length > 0 ? (
             <Button
@@ -117,7 +136,7 @@ const CoursePage = () => {
               loading={enrolling || generateStatus === 'loading'}
               size="large"
             >
-              Đăng ký & Sinh lịch ({selectedRowKeys.length} môn)
+              Đăng ký ({selectedRowKeys.length} môn)
             </Button>
           ) : undefined
         }
