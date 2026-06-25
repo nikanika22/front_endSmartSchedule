@@ -108,7 +108,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
   return (
     <Sider width={240} collapsed={collapsed}>
       <div
-        className={`h-16 flex items-center justify-center border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
+        className={`h-[64px] flex items-center justify-center border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
       >
         <Image src={STU_Logo} preview={false} width={collapsed ? 48 : 64} />
       </div>
