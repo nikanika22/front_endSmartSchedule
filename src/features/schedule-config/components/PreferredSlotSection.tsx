@@ -1,5 +1,6 @@
 import React from 'react';
 import { Typography } from 'antd';
+import { SunOutlined, CoffeeOutlined, MoonOutlined } from '@ant-design/icons';
 import type { PreferredSlot } from '../types';
 
 const { Text } = Typography;
@@ -13,20 +14,23 @@ const SESSIONS = [
   { 
     id: 'MORNING' as PreferredSlot, 
     label: 'Ca Sáng', 
-    time: '07:00 - 12:00',
-    description: 'Ưu tiên sắp xếp lịch biểu vào các khung giờ học buổi sáng.',
+    time: '07:00 - 12:05',
+    description: 'Học buổi sáng (Ca 1 & Ca 2), phù hợp để tập trung.',
+    icon: <SunOutlined className="text-2xl text-amber-500" />,
   },
   { 
     id: 'AFTERNOON' as PreferredSlot, 
     label: 'Ca Chiều', 
-    time: '12:30 - 17:30',
-    description: 'Ưu tiên sắp xếp lịch biểu vào các khung giờ học buổi chiều.',
+    time: '12:35 - 17:40',
+    description: 'Học buổi chiều (Ca 3 & Ca 4), thoải mái thời gian.',
+    icon: <CoffeeOutlined className="text-2xl text-orange-500" />,
   },
   { 
     id: 'EVENING' as PreferredSlot, 
     label: 'Ca Tối', 
     time: '18:00 - 22:00',
-    description: 'Ưu tiên sắp xếp lịch biểu vào các khung giờ học buổi tối.',
+    description: 'Học buổi tối, phù hợp với người đi làm thêm.',
+    icon: <MoonOutlined className="text-2xl text-indigo-500" />,
   },
 ];
 
@@ -35,37 +39,46 @@ export const PreferredSlotSection: React.FC<Props> = ({ selectedSlot, onSelect }
     <div className="mb-10">
       {/* Section Header */}
       <div className="mb-4">
-        <span className="text-[10px] font-mono tracking-widest text-[var(--accent)] uppercase block mb-1">
-          01 / BUỔI HỌC ƯU TIÊN
-        </span>
         <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100">Buổi học mong muốn</h3>
       </div>
       <Text className="text-slate-400 dark:text-slate-500 mb-6 block text-xs leading-relaxed">
-        Chọn 1 buổi học trong ngày mà bạn mong muốn hệ thống ưu tiên sắp xếp lịch biểu trước.
+        Chọn 1 buổi học trong ngày mà bạn mong muốn hệ thống ưu tiên xếp lịch biểu lên hàng đầu.
       </Text>
 
-      <div className="divide-y divide-slate-100 dark:divide-slate-800/60 border-t border-b border-slate-100 dark:border-slate-800/60">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
         {SESSIONS.map((session) => {
           const isActive = selectedSlot === session.id;
           return (
             <div
               key={session.id}
               onClick={() => onSelect(session.id)}
-              className="group cursor-pointer py-4.5 flex items-center justify-between transition-all select-none active:opacity-75"
+              className={`
+                relative overflow-hidden cursor-pointer rounded-2xl border p-5 flex flex-col justify-between gap-4 transition-all duration-300 select-none active:scale-[0.98]
+                ${isActive 
+                  ? 'border-[var(--accent)] bg-[var(--accent-bg)] text-[var(--accent)] shadow-sm border-2' 
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
+                }
+              `}
             >
-              <div className="flex flex-col gap-0.5">
-                <span className={`text-sm font-semibold transition-colors duration-200 ${isActive ? 'text-[var(--accent)]' : 'text-slate-800 dark:text-slate-200 group-hover:text-[var(--accent)]'}`}>
-                  {session.label}
-                </span>
-                <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                  {session.description}
-                </span>
+              <div className="flex justify-between items-start">
+                <div className={`p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 transition-colors ${isActive ? 'bg-white/80 dark:bg-slate-800/80 shadow-sm' : ''}`}>
+                  {session.icon}
+                </div>
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isActive ? 'border-[var(--accent)] bg-[var(--accent)]' : 'border-slate-350 dark:border-slate-700'}`}>
+                  {isActive && <div className="w-2 h-2 rounded-full bg-white" />}
+                </div>
               </div>
-              <div className="flex items-center gap-6">
-                <span className={`text-[11px] font-mono transition-colors ${isActive ? 'text-[var(--accent)] font-semibold' : 'text-slate-400 dark:text-slate-550'}`}>
+
+              <div>
+                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-1">{session.label}</h4>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">{session.description}</p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800/65 flex items-center justify-between">
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Khung giờ</span>
+                <span className={`text-xs font-mono font-semibold ${isActive ? 'text-[var(--accent)]' : 'text-slate-600 dark:text-slate-400'}`}>
                   {session.time}
                 </span>
-                <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isActive ? 'bg-[var(--accent)] scale-110' : 'bg-transparent border border-slate-300 dark:border-slate-700'}`} />
               </div>
             </div>
           );
@@ -74,4 +87,3 @@ export const PreferredSlotSection: React.FC<Props> = ({ selectedSlot, onSelect }
     </div>
   );
 };
-

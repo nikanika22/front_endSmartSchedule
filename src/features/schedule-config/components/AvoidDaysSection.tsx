@@ -32,31 +32,36 @@ export const AvoidDaysSection: React.FC<Props> = ({ avoidDays, onChange }) => {
     <div className="mb-8 pt-7 border-t border-slate-100 dark:border-slate-800">
       {/* Section Header */}
       <div className="mb-3">
-        <span className="text-[10px] font-mono tracking-widest text-[var(--accent)] uppercase block mb-1">
-          02 / NGÀY NGHỈ CỐ ĐỊNH
-        </span>
         <h3 className="text-lg font-bold text-slate-850 dark:text-slate-100">Ngày nghỉ cố định</h3>
       </div>
       <Text className="text-slate-400 dark:text-slate-500 mb-6 block text-xs leading-relaxed">
-        Chọn những ngày trong tuần bạn muốn hệ thống <span className="font-semibold text-rose-500 dark:text-rose-400">tuyệt đối không xếp lịch</span>.
+        Chọn những ngày trong tuần bạn muốn hệ thống <span className="font-semibold text-rose-500 dark:text-rose-450">tuyệt đối không xếp lịch học</span>.
       </Text>
 
-      <div className="flex justify-between items-center max-w-sm mt-4">
+      <div className="grid grid-cols-7 gap-2 max-w-xl mt-4">
         {DAYS_OF_WEEK.map(day => {
           const isSelected = avoidDays.includes(day.value);
+          const isWeekend = day.value === 7 || day.value === 8;
           return (
-            <button
+            <div
               key={day.value}
               onClick={() => toggleDay(day.value)}
               className={`
-                w-10 h-10 rounded-full font-semibold text-xs transition-all duration-200 select-none active:scale-90 cursor-pointer flex items-center justify-center
+                relative cursor-pointer h-14 rounded-xl border flex flex-col items-center justify-center transition-all duration-200 select-none active:scale-95
                 ${isSelected
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80'}
+                  ? 'border-[var(--accent)] bg-[var(--accent-bg)] text-[var(--accent)] font-bold shadow-sm border-2'
+                  : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                }
               `}
             >
-              {day.label}
-            </button>
+              <span className="text-[10px] font-medium opacity-60 mb-0.5">
+                {day.value === 8 ? 'Chủ nhật' : `Thứ ${day.value}`}
+              </span>
+              <span className="text-sm font-bold">{day.label}</span>
+              {isWeekend && !isSelected && (
+                <div className="absolute top-1 right-1.5 w-1 h-1 rounded-full bg-slate-450 dark:bg-slate-600" />
+              )}
+            </div>
           );
         })}
       </div>

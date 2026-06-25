@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Drawer, Form, Input, Select, TimePicker, Typography, Popconfirm } from 'antd';
-import { PlusOutlined, DeleteOutlined, ClockCircleOutlined, CalendarOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, ClockCircleOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import type { CreatePersonalEventDto, PersonalEvent } from '../types';
 import type { Dayjs } from 'dayjs';
 
@@ -56,9 +56,6 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
     <div className="lg:pt-0 lg:border-t-0 pt-7 border-t border-slate-100 dark:border-slate-800">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <span className="text-[10px] font-mono tracking-widest text-[var(--accent)] uppercase block mb-1">
-            03 / THỜI GIAN BẬN CÁ NHÂN
-          </span>
           <h3 className="text-lg font-bold text-slate-850 dark:text-slate-100">Khung giờ bận</h3>
         </div>
         <Button
@@ -74,48 +71,54 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
         Khai báo khung giờ bận cố định trong tuần (VD: Lịch làm thêm, sinh hoạt CLB...).
       </Text>
 
-      <div className="flex flex-col gap-0">
+      <div className="flex flex-col gap-0 mt-5">
         {events.length === 0 ? (
-          <div className="py-10 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
-            <CalendarOutlined className="text-3xl text-slate-300 dark:text-slate-700 mb-3" />
+          <div className="py-10 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+            <CalendarOutlined className="text-3xl text-slate-350 dark:text-slate-700 mb-3" />
             <div className="text-slate-400 dark:text-slate-500 font-medium text-xs">Bạn chưa cấu hình khung giờ bận nào.</div>
           </div>
         ) : (
           events.map((item) => (
             <div
               key={item.event_id}
-              className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-200 py-3 px-2 border-b border-slate-100 dark:border-slate-800/60 last:border-b-0 relative overflow-hidden flex items-start justify-between gap-4"
+              className="group bg-slate-50/40 dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-300 p-4 rounded-xl border border-slate-150 dark:border-slate-800/80 mb-3 relative overflow-hidden flex items-start justify-between gap-4 shadow-sm"
             >
-              <div className="flex-1">
+              {/* Accent vertical line */}
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent)] opacity-60" />
+              <div className="flex-1 pl-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">{item.title}</span>
+                  <span className="font-bold text-sm text-slate-850 dark:text-slate-200 group-hover:text-[var(--accent)] transition-colors duration-250">{item.title}</span>
                   {item.is_recurring && (
-                    <span className="bg-[var(--accent-bg)] text-[var(--accent)] px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-wider font-semibold">
-                      Hàng tuần
+                    <span className="bg-[var(--accent-bg)] text-[var(--accent)] px-2 py-0.5 rounded-full font-mono text-[8px] uppercase tracking-wider font-bold">
+                      Cố định
                     </span>
                   )}
                 </div>
-                <div className="mt-1.5 text-slate-450 dark:text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                  <span className="flex items-center gap-1"><CalendarOutlined className="text-slate-350 dark:text-slate-600 text-xs" /> {getDayLabel(item.day_of_week)}</span>
-                  <span className="flex items-center gap-1"><ClockCircleOutlined className="text-slate-350 dark:text-slate-600 text-xs" /> {item.start_time.slice(0, 5)} - {item.end_time.slice(0, 5)}</span>
-                  {item.note && <span className="italic text-slate-400/80 dark:text-slate-500/80 font-normal">Ghi chú: {item.note}</span>}
+                <div className="mt-2 text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                  <span className="flex items-center gap-1.5"><CalendarOutlined className="text-[var(--accent)] text-xs" /> {getDayLabel(item.day_of_week)}</span>
+                  <span className="flex items-center gap-1.5"><ClockCircleOutlined className="text-[var(--accent)] text-xs" /> {item.start_time.slice(0, 5)} - {item.end_time.slice(0, 5)}</span>
                 </div>
+                {item.note && (
+                  <div className="mt-1.5 text-[11px] text-slate-400/90 dark:text-slate-500 italic">
+                    Ghi chú: {item.note}
+                  </div>
+                )}
               </div>
-              <div className="flex-shrink-0 pt-1">
+              <div className="flex-shrink-0 pt-0.5">
                 <Popconfirm
                   title="Xóa sự kiện"
                   description="Bạn có chắc chắn muốn xóa sự kiện bận này không?"
                   onConfirm={() => onDelete(item.event_id)}
                   okText="Xóa"
                   cancelText="Hủy"
-                  okButtonProps={{ danger: true, className: 'rounded-lg bg-rose-650 border-0 hover:bg-rose-600 text-white' }}
-                  cancelButtonProps={{ className: 'rounded-lg dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700' }}
+                  okButtonProps={{ danger: true, className: 'rounded-lg bg-rose-600 border-0 hover:bg-rose-500 text-white font-medium text-xs h-8 px-3' }}
+                  cancelButtonProps={{ className: 'rounded-lg text-xs h-8 px-3 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700' }}
                 >
                   <Button 
                     danger 
                     icon={<DeleteOutlined className="text-sm" />} 
                     type="text" 
-                    className="text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-450 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-colors duration-200" 
+                    className="text-slate-450 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200" 
                   />
                 </Popconfirm>
               </div>
@@ -124,14 +127,19 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
         )}
       </div>
 
-      {/* Guide Tip Box to fill empty space */}
-      <div className="mt-8 pl-4 border-l-2 border-slate-200 dark:border-slate-800">
-        <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-          Lưu ý xếp lịch
-        </h4>
-        <p className="text-[11px] text-slate-400 dark:text-slate-550 leading-relaxed">
-          Hệ thống sẽ tự động tránh xếp lịch học trùng với các sự kiện cá nhân mà bạn đã khai báo ở đây.
-        </p>
+      {/* Guide Tip Box */}
+      <div className="mt-8 p-4 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-150 dark:border-slate-800/80 rounded-2xl flex gap-3">
+        <div className="p-2 bg-[var(--accent-bg)] text-[var(--accent)] rounded-xl h-fit">
+          <InfoCircleOutlined className="text-base flex" />
+        </div>
+        <div>
+          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-350 mb-0.5">
+            Lưu ý xếp lịch tự động
+          </h4>
+          <p className="text-[11px] text-slate-400 dark:text-slate-550 leading-relaxed">
+            Hệ thống sẽ tự động tránh xếp lịch học trùng với các sự kiện cá nhân mà bạn đã khai báo ở đây để tối ưu hóa thời gian biểu của bạn.
+          </p>
+        </div>
       </div>
 
       <Drawer
