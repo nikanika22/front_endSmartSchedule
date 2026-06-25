@@ -1,14 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { type Course } from '../types/course-type';
-import { Table, Button, message } from 'antd';
+import { Table, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { courseRoleAdminApi } from '../api/course-api';
 import { enrollmentApi } from '@/features/enrollments/api/enrollment-api';
+import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
+import { generateScheduleThunk } from '@/features/schedules/store/schedules-thunk';
+import { useNotification } from '@/shared/hooks/useNotification';
+import PageHeader from '@/shared/components/page/PageHeader';
 
 const CoursePage = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { showNotification } = useNotification();
+
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [enrolling, setEnrolling] = useState<boolean>(false);
+
+  // Theo dõi trạng thái generate từ Redux
+  const generateStatus = useAppSelector((s) => s.schedules.generateStatus);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -22,32 +34,41 @@ const CoursePage = () => {
         setLoading(false);
       }
     };
-
     fetchCourses();
   }, []);
 
   const handleEnroll = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Vui lòng chọn ít nhất 1 môn học!');
+      showNotification('warning', 'Chưa chọn môn học', 'Vui lòng chọn ít nhất 1 môn học!');
       return;
     }
 
     try {
       setEnrolling(true);
-      // Gọi API đăng ký song song cho nhiều môn
+
+      // Bước 1: Đăng ký môn học (song song)
       await Promise.all(
         selectedRowKeys.map((course_id) =>
-          enrollmentApi.create({
-            course_id: course_id.toString(),
-          })
+          enrollmentApi.create({ course_id: course_id.toString() })
         )
       );
 
-      message.success('Đăng ký môn học thành công!');
-      setSelectedRowKeys([]); // Reset checkbox sau khi đăng ký xong
+      showNotification('success', 'Đăng ký thành công!', 'Hệ thống đang sinh lịch học tối ưu...');
+      setSelectedRowKeys([]);
+
+      // Bước 2: Dispatch generate schedule vào Redux TRƯỚC khi navigate
+      // SchedulePage sẽ đọc kết quả từ store (không gọi API lại)
+      dispatch(generateScheduleThunk({ semester_id: '', max_solutions: 3 }));
+
+      // Bước 3: Navigate sang SchedulePage, báo hiệu đến từ CoursePage
+      navigate('/schedules', { state: { fromEnroll: true } });
     } catch (error: any) {
       console.error('Lỗi khi đăng ký:', error);
-      message.error(error?.response?.data?.message || 'Đã có lỗi xảy ra khi đăng ký!');
+      showNotification(
+        'error',
+        'Đăng ký thất bại',
+        error?.response?.data?.message || 'Đã có lỗi xảy ra khi đăng ký!',
+      );
     } finally {
       setEnrolling(false);
     }
@@ -85,19 +106,22 @@ const CoursePage = () => {
 
   return (
     <div className="flex flex-col h-full bg-white p-6 -m-6 min-h-[calc(100vh-64px)]">
-      <div className="relative flex justify-center items-center mb-6">
-        {selectedRowKeys.length > 0 && (
-          <div className="absolute right-0">
-            <Button 
-              type="primary" 
-              onClick={handleEnroll} 
-              loading={enrolling}
+      <PageHeader
+        title="Đăng ký môn học"
+        subtitle="Chọn các môn học bạn muốn đăng ký trong học kỳ này"
+        extra={
+          selectedRowKeys.length > 0 ? (
+            <Button
+              type="primary"
+              onClick={handleEnroll}
+              loading={enrolling || generateStatus === 'loading'}
+              size="large"
             >
-              Đăng ký ({selectedRowKeys.length} môn)
+              Đăng ký & Sinh lịch ({selectedRowKeys.length} môn)
             </Button>
-          </div>
-        )}
-      </div>
+          ) : undefined
+        }
+      />
 
       <Table<Course>
         rowSelection={rowSelection}

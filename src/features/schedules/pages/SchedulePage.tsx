@@ -1,0 +1,333 @@
+import React, { useEffect } from 'react';
+import { Tabs, Button, Progress, Spin, Badge, Tag } from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
+import { setActiveTabKey } from '../store/schedules-slice';
+import { fetchConfirmedScheduleThunk, confirmScheduleThunk } from '../store/schedules-thunk';
+import { useNotification } from '@/shared/hooks/useNotification';
+import CardCustom from '@/shared/components/card/CardCustom';
+import RowCustom from '@/shared/components/row/RowCustom';
+import PageHeader from '@/shared/components/page/PageHeader';
+import EmptyCustom from '@/shared/components/empty/EmptyCustom';
+import { Col } from 'antd';
+import type { ClassScheduleItem } from '../types/schedule-types';
+import type { PersonalEvent } from '@/features/schedule-config/types';
+
+// Chuyển day_of_week của DB (2-8: T2-CN) sang index FullCalendar (0-6: CN-T7)
+const getFCDay = (day: number): number => (day === 8 ? 0 : day - 1);
+
+const buildCalendarEvents = (
+  classes: ClassScheduleItem[],
+  personalEvents: PersonalEvent[],
+  courseMap: Record<string, string>,
+) => {
+  const events: any[] = [];
+
+  classes.forEach((cls) => {
+    const courseName = courseMap[cls.course_id] ?? cls.course_id;
+    events.push({
+      id: `class-${cls.class_id}`,
+      title: `${courseName}\nLớp: ${cls.class_id}\nPhòng: ${cls.room || 'N/A'}\nGV: ${cls.instructor || 'N/A'}`,
+      daysOfWeek: [getFCDay(cls.day_of_week)],
+      startTime: cls.start_time,
+      endTime: cls.end_time,
+      backgroundColor: '#1890ff',
+      borderColor: '#1677ff',
+      textColor: '#fff',
+      extendedProps: { type: 'class' },
+    });
+  });
+
+  personalEvents.forEach((pe) => {
+    if (pe.day_of_week) {
+      events.push({
+        id: `personal-${pe.event_id}`,
+        title: `[Cá nhân] ${pe.title}`,
+        daysOfWeek: [getFCDay(pe.day_of_week)],
+        startTime: pe.start_time,
+        endTime: pe.end_time,
+        backgroundColor: '#94a3b8',
+        borderColor: '#64748b',
+        textColor: '#fff',
+        extendedProps: { type: 'personal' },
+      });
+    }
+  });
+
+  return events;
+};
+
+const ScoreBar = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) => (
+  <div className="mb-4">
+    <div className="flex justify-between text-sm mb-1">
+      <span className="text-gray-600 font-medium">{label}</span>
+      <span className="font-bold" style={{ color }}>
+        {Math.round(value * 100)}%
+      </span>
+    </div>
+    <Progress percent={Math.round(value * 100)} strokeColor={color} showInfo={false} strokeWidth={7} />
+  </div>
+);
+
+const SchedulePage: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { showNotification } = useNotification();
+
+  const {
+    solutions,
+    activeSemester,
+    activeTabKey,
+    confirmedSchedule,
+    generateStatus,
+    fetchStatus,
+    confirmStatus,
+    error,
+  } = useAppSelector((s) => s.schedules);
+
+  // personalEvents để hiện lịch cá nhân overlay lên calendar
+  const personalEvents = useAppSelector((s) => s.scheduleConfig.personalEvents);
+
+  // courseMap tạm thời (course_id -> course_name) — sẽ được làm đầy từ solutions
+  const courseMap: Record<string, string> = {};
+  solutions.forEach((sol) => {
+    sol.classes.forEach((cls) => {
+      if (!courseMap[cls.course_id]) courseMap[cls.course_id] = cls.course_id;
+    });
+  });
+
+  useEffect(() => {
+    const fromEnroll = (location.state as any)?.fromEnroll;
+    if (!fromEnroll) {
+      // Vào thẳng URL hoặc F5 → kiểm tra lịch đã xác nhận chưa
+      dispatch(fetchConfirmedScheduleThunk());
+    }
+    // Xóa state để lần navigate sau không bị nhầm
+    window.history.replaceState({}, '');
+  }, []);
+
+  const handleConfirm = async () => {
+    const idx = parseInt(activeTabKey, 10);
+    const selected = solutions[idx];
+    if (!selected || !activeSemester) return;
+
+    const result = await dispatch(
+      confirmScheduleThunk({
+        schedule_id: selected.schedule_id,
+        semester_id: activeSemester.semester_id,
+      }),
+    );
+
+    if (confirmScheduleThunk.fulfilled.match(result)) {
+      showNotification('success', 'Xác nhận lịch thành công!', 'Lịch học đã được lưu cố định.');
+    } else {
+      showNotification('error', 'Xác nhận thất bại', result.payload as string);
+    }
+  };
+
+  // ── Loading states ──────────────────────────────────────────────
+  const isLoading =
+    generateStatus === 'loading' || fetchStatus === 'loading';
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[70vh] gap-4">
+        <Spin size="large" />
+        <p className="text-gray-500 font-medium animate-pulse">
+          {generateStatus === 'loading'
+            ? 'Hệ thống đang chạy thuật toán tối ưu xếp lịch...'
+            : 'Đang tải thông tin lịch học...'}
+        </p>
+      </div>
+    );
+  }
+
+  // ── Error state ─────────────────────────────────────────────────
+  if (error && !confirmedSchedule && solutions.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[70vh] gap-4">
+        <EmptyCustom title={error} />
+        <Button onClick={() => navigate('/courses')}>Quay lại Đăng ký môn</Button>
+      </div>
+    );
+  }
+
+  // ── Confirmed schedule (READ-ONLY) ──────────────────────────────
+  if (confirmedSchedule) {
+    const classes: ClassScheduleItem[] = confirmedSchedule.scheduleClasses?.map((sc: any) => ({
+      class_id: sc.class_id,
+      course_id: sc.class?.course_id ?? sc.class_id,
+      semester_id: confirmedSchedule.semester_id,
+      day_of_week: sc.class?.day_of_week ?? 2,
+      start_time: sc.class?.start_time ?? '07:00',
+      end_time: sc.class?.end_time ?? '09:00',
+      room: sc.class?.room ?? '',
+      instructor: sc.class?.instructor ?? '',
+      max_students: sc.class?.max_students ?? 0,
+    })) ?? [];
+
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader
+          title="Thời khóa biểu của tôi"
+          subtitle="Lịch học đã được xác nhận và lưu cố định"
+          extra={
+            <Tag color="success" className="text-sm px-3 py-1 rounded-full">
+              ✓ Đã xác nhận
+            </Tag>
+          }
+        />
+        <CardCustom>
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="timeGridWeek"
+            slotMinTime="07:00:00"
+            slotMaxTime="22:00:00"
+            allDaySlot={false}
+            height="auto"
+            locale="vi"
+            events={buildCalendarEvents(classes, personalEvents, courseMap)}
+            headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
+            buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
+            firstDay={1}
+            dayHeaderFormat={{ weekday: 'long' }}
+          />
+        </CardCustom>
+      </div>
+    );
+  }
+
+  // ── Empty state ──────────────────────────────────
+  if (solutions.length === 0) {
+    if (generateStatus === 'succeeded') {
+      return (
+        <div className="flex flex-col justify-center items-center h-[70vh] gap-4 text-center px-4">
+          <EmptyCustom title="Không tìm thấy phương án xếp lịch học nào phù hợp!" />
+          <p className="text-gray-500 max-w-md text-sm -mt-2">
+            Hệ thống không tìm thấy lịch học nào không bị trùng giờ. Hãy thử giảm bớt ngày bận, lịch cá nhân trong mục <strong>Cấu hình lịch học</strong> hoặc điều chỉnh môn đăng ký.
+          </p>
+          <div className="flex gap-3 mt-2">
+            <Button onClick={() => navigate('/courses')}>
+              Đăng ký môn học
+            </Button>
+            <Button type="primary" onClick={() => navigate('/schedule-config')}>
+              Cấu hình lịch học
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col justify-center items-center h-[70vh] gap-4">
+        <EmptyCustom title="Bạn chưa có thời khóa biểu. Hãy đăng ký môn học trước!" />
+        <Button type="primary" onClick={() => navigate('/courses')}>
+          Đăng ký môn học
+        </Button>
+      </div>
+    );
+  }
+
+  // ── 3 phương án lịch đề xuất ────────────────────────────────────
+  const activeSolution = solutions[parseInt(activeTabKey, 10)];
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Đề xuất Thời khóa biểu"
+        subtitle={`Học kỳ: ${activeSemester?.name ?? ''} · ${solutions.length} phương án tối ưu`}
+        extra={
+          <Button
+            type="primary"
+            size="large"
+            loading={confirmStatus === 'loading'}
+            onClick={handleConfirm}
+          >
+            Xác nhận chọn Lịch này
+          </Button>
+        }
+      />
+
+      <RowCustom>
+        {/* Cột trái: Điểm tối ưu */}
+        <Col xs={24} lg={6}>
+          <CardCustom title="Điểm tối ưu phương án">
+            <ScoreBar label="Tổng hợp" value={activeSolution.score_total} color="#1890ff" />
+            <ScoreBar label="Sở thích buổi học" value={activeSolution.score_pref} color="#0d9488" />
+            <ScoreBar label="Giờ nghỉ giải lao" value={activeSolution.score_break} color="#d97706" />
+            <ScoreBar label="Cân bằng lịch học" value={activeSolution.score_balance} color="#e11d48" />
+
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 border border-gray-100">
+              <p className="font-semibold text-gray-700 mb-1">💡 Mẹo nhỏ:</p>
+              Hệ thống đã so sánh với lịch cá nhân và sở thích của bạn để tìm lịch học phù hợp nhất.
+            </div>
+          </CardCustom>
+        </Col>
+
+        {/* Cột phải: Tabs + FullCalendar */}
+        <Col xs={24} lg={18}>
+          <CardCustom>
+            <Tabs
+              activeKey={activeTabKey}
+              onChange={(key) => dispatch(setActiveTabKey(key))}
+              type="card"
+              items={solutions.map((sol, idx) => ({
+                key: idx.toString(),
+                label: (
+                  <span className="px-1 font-semibold">
+                    Phương án {idx + 1}
+                    <Badge
+                      count={`${Math.round(sol.score_total * 100)}%`}
+                      className="ml-2"
+                      style={{
+                        backgroundColor: idx === parseInt(activeTabKey, 10) ? '#1890ff' : '#94a3b8',
+                        fontSize: '10px',
+                      }}
+                    />
+                  </span>
+                ),
+              }))}
+            />
+
+            <div className="mt-3">
+              <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="timeGridWeek"
+                slotMinTime="07:00:00"
+                slotMaxTime="22:00:00"
+                allDaySlot={false}
+                height="auto"
+                locale="vi"
+                events={buildCalendarEvents(activeSolution.classes, personalEvents, courseMap)}
+                headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
+                buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
+                firstDay={1}
+                dayHeaderFormat={{ weekday: 'long' }}
+                eventContent={(arg) => (
+                  <div className="p-1 text-xs overflow-hidden h-full leading-tight">
+                    <div className="font-bold whitespace-pre-wrap">{arg.event.title}</div>
+                  </div>
+                )}
+              />
+            </div>
+          </CardCustom>
+        </Col>
+      </RowCustom>
+    </div>
+  );
+};
+
+export default SchedulePage;
