@@ -26,7 +26,10 @@ const AntdProvider: React.FC<AntdProviderProps> = ({ children }) => {
         algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
           // Màu chủ đạo của hệ thống (button, link, active,...)
-          colorPrimary: AppColors.Primary,
+          colorPrimary: theme === 'dark' ? '#38bdf8' : AppColors.Primary,
+
+          // Nền chung của Layout (trắng xám)
+          colorBgLayout: theme === 'dark' ? undefined : AppColors.Background,
 
           // Font chữ dùng toàn bộ app
           fontFamily: AppFontFamily.Primary,
@@ -35,8 +38,8 @@ const AntdProvider: React.FC<AntdProviderProps> = ({ children }) => {
         // Customize riêng từng component
         components: {
           Layout: {
-            headerBg: theme === 'dark' ? AppColors.Secondary : '#fff',
-            siderBg: theme === 'dark' ? AppColors.Secondary : '#fff',
+            headerBg: theme === 'dark' ? '#0f172a' : AppColors.Secondary, // Đồng bộ màu xám với Sidebar ở Light mode
+            siderBg: theme === 'dark' ? '#0f172a' : AppColors.Secondary, // Đồng bộ màu xám ở Light mode
           },
 
           Menu: {

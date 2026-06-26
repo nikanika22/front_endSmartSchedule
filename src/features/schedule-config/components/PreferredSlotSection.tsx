@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from 'antd';
+import { Typography, theme } from 'antd';
 import { SunOutlined, CoffeeOutlined, MoonOutlined } from '@ant-design/icons';
 import type { PreferredSlot } from '../types';
 
@@ -35,13 +35,15 @@ const SESSIONS = [
 ];
 
 export const PreferredSlotSection: React.FC<Props> = ({ selectedSlot, onSelect }) => {
+  const { token } = theme.useToken();
+
   return (
     <div className="mb-10">
       {/* Section Header */}
       <div className="mb-4">
         <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100">Buổi học mong muốn</h3>
       </div>
-      <Text className="text-slate-400 dark:text-slate-500 mb-6 block text-xs leading-relaxed">
+      <Text className="text-slate-400 dark:text-slate-555 mb-6 block text-xs leading-relaxed">
         Chọn 1 buổi học trong ngày mà bạn mong muốn hệ thống ưu tiên xếp lịch biểu lên hàng đầu.
       </Text>
 
@@ -52,31 +54,57 @@ export const PreferredSlotSection: React.FC<Props> = ({ selectedSlot, onSelect }
             <div
               key={session.id}
               onClick={() => onSelect(session.id)}
-              className={`
-                relative overflow-hidden cursor-pointer rounded-2xl border p-5 flex flex-col justify-between gap-4 transition-all duration-300 select-none active:scale-[0.98]
-                ${isActive 
-                  ? 'border-[var(--accent)] bg-[var(--accent-bg)] text-[var(--accent)] shadow-sm border-2' 
-                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
-                }
-              `}
+              className="relative overflow-hidden cursor-pointer rounded-2xl border p-5 flex flex-col justify-between gap-4 transition-all duration-300 select-none active:scale-[0.98] shadow-sm"
+              style={
+                isActive 
+                  ? {
+                      borderColor: token.colorPrimary,
+                      backgroundColor: token.colorPrimaryBg,
+                      color: token.colorPrimary,
+                      borderWidth: '2px'
+                    } 
+                  : {
+                      borderColor: token.colorBorderSecondary,
+                      backgroundColor: token.colorBgContainer,
+                      color: token.colorText
+                    }
+              }
             >
               <div className="flex justify-between items-start">
-                <div className={`p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 transition-colors ${isActive ? 'bg-white/80 dark:bg-slate-800/80 shadow-sm' : ''}`}>
+                <div 
+                  className="p-2.5 rounded-xl transition-colors"
+                  style={{
+                    backgroundColor: isActive ? token.colorBgContainer : token.colorBgLayout,
+                    boxShadow: isActive ? token.boxShadowSecondary : 'none'
+                  }}
+                >
                   {session.icon}
                 </div>
-                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isActive ? 'border-[var(--accent)] bg-[var(--accent)]' : 'border-slate-350 dark:border-slate-700'}`}>
+                <div 
+                  className="w-5 h-5 rounded-full border flex items-center justify-center transition-all"
+                  style={{
+                    borderColor: isActive ? token.colorPrimary : token.colorBorderSecondary,
+                    backgroundColor: isActive ? token.colorPrimary : 'transparent'
+                  }}
+                >
                   {isActive && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
               </div>
 
               <div>
                 <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-1">{session.label}</h4>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">{session.description}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-555 leading-normal">{session.description}</p>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800/65 flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Khung giờ</span>
-                <span className={`text-xs font-mono font-semibold ${isActive ? 'text-[var(--accent)]' : 'text-slate-600 dark:text-slate-400'}`}>
+              <div 
+                className="pt-3 border-t flex items-center justify-between"
+                style={{ borderColor: token.colorBorderSecondary }}
+              >
+                <span className="text-[10px] text-slate-400 dark:text-slate-555 font-medium">Khung giờ</span>
+                <span 
+                  className="text-xs font-mono font-semibold"
+                  style={{ color: isActive ? token.colorPrimary : token.colorTextSecondary }}
+                >
                   {session.time}
                 </span>
               </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { type Course } from '../types/course-type';
-import { Table, Button } from 'antd';
+import { Table, Button, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { courseRoleAdminApi } from '../api/course-api';
 import { enrollmentApi } from '@/features/enrollments/api/enrollment-api';
@@ -15,6 +15,7 @@ const CoursePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { showNotification } = useNotification();
+  const { token } = theme.useToken();
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -123,7 +124,10 @@ const CoursePage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white p-6 -m-6 min-h-[calc(100vh-64px)]">
+    <div 
+      className="flex flex-col h-full p-6 -m-6 min-h-[calc(100vh-64px)]"
+      style={{ backgroundColor: token.colorBgContainer }}
+    >
       <PageHeader
         title="Đăng ký môn học"
         subtitle="Chọn các môn học bạn muốn đăng ký trong học kỳ này"

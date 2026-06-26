@@ -79,7 +79,7 @@ const ScheduleConfigPage: React.FC = () => {
   const isSaving = saveStatus === 'loading';
 
   return (
-    <div className="w-full min-h-screen bg-white p-6 sm:p-10">
+    <div className="w-full">
       <PageHeader
         title="Cấu hình Lịch học"
         subtitle="Thiết lập sở thích và lịch cá nhân để hệ thống sinh lịch phù hợp hơn"

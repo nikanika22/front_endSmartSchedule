@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Tabs, Button, Progress, Spin, Badge, Tag } from 'antd';
+import { Tabs, Button, Progress, Spin, Badge, Tag, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -23,6 +23,7 @@ const getFCDay = (day: number): number => (day === 8 ? 0 : day - 1);
 const buildCalendarEvents = (
   classes: ClassScheduleItem[],
   personalEvents: PersonalEvent[],
+  primaryColor: string = '#0ea5e9',
 ) => {
   const events: any[] = [];
 
@@ -36,8 +37,8 @@ const buildCalendarEvents = (
       daysOfWeek: [getFCDay(cls.day_of_week)],
       startTime: cls.start_time,
       endTime: cls.end_time,
-      backgroundColor: '#1890ff',
-      borderColor: '#1677ff',
+      backgroundColor: primaryColor,
+      borderColor: primaryColor,
       textColor: '#fff',
       extendedProps: { type: 'class' },
     });
@@ -87,6 +88,7 @@ const SchedulePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { showNotification } = useNotification();
+  const { token } = theme.useToken();
 
   const {
     solutions,
@@ -180,11 +182,6 @@ const SchedulePage: React.FC = () => {
         <PageHeader
           title="Thời khóa biểu của tôi"
           subtitle="Lịch học đã được xác nhận và lưu cố định"
-          extra={
-            <Tag color="success" className="text-sm px-3 py-1 rounded-full">
-              ✓ Đã xác nhận
-            </Tag>
-          }
         />
         <CardCustom>
           <FullCalendar
@@ -195,7 +192,7 @@ const SchedulePage: React.FC = () => {
             allDaySlot={false}
             height="auto"
             locale="vi"
-            events={buildCalendarEvents(classes, personalEvents)}
+            events={buildCalendarEvents(classes, personalEvents, token.colorPrimary)}
             headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
             buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
             firstDay={1}
@@ -278,7 +275,7 @@ const SchedulePage: React.FC = () => {
         {/* Cột trái: Điểm tối ưu */}
         <Col xs={24} lg={6}>
           <CardCustom title="Điểm tối ưu phương án">
-            <ScoreBar label="Tổng hợp" value={activeSolution.score_total} color="#1890ff" />
+            <ScoreBar label="Tổng hợp" value={activeSolution.score_total} color={token.colorPrimary} />
             <ScoreBar label="Sở thích buổi học" value={activeSolution.score_pref} color="#0d9488" />
             <ScoreBar label="Giờ nghỉ giải lao" value={activeSolution.score_break} color="#d97706" />
             <ScoreBar label="Cân bằng lịch học" value={activeSolution.score_balance} color="#e11d48" />
@@ -306,7 +303,7 @@ const SchedulePage: React.FC = () => {
                       count={`${Math.round(sol.score_total * 100)}%`}
                       className="ml-2"
                       style={{
-                        backgroundColor: idx === parseInt(activeTabKey, 10) ? '#1890ff' : '#94a3b8',
+                        backgroundColor: idx === parseInt(activeTabKey, 10) ? token.colorPrimary : '#94a3b8',
                         fontSize: '10px',
                       }}
                     />
@@ -324,7 +321,7 @@ const SchedulePage: React.FC = () => {
                 allDaySlot={false}
                 height="auto"
                 locale="vi"
-                events={buildCalendarEvents(activeSolution.classes, personalEvents)}
+                events={buildCalendarEvents(activeSolution.classes, personalEvents, token.colorPrimary)}
                 headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
                 buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
                 firstDay={1}

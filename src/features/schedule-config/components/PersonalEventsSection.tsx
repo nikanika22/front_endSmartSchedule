@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Drawer, Form, Input, Select, TimePicker, Typography, Popconfirm } from 'antd';
+import { Button, Drawer, Form, Input, Select, TimePicker, Typography, Popconfirm, theme } from 'antd';
 import { PlusOutlined, DeleteOutlined, ClockCircleOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import type { CreatePersonalEventDto, PersonalEvent } from '../types';
 import type { Dayjs } from 'dayjs';
@@ -27,6 +27,7 @@ const DAYS_OPTIONS = [
 export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDelete, loading }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [form] = Form.useForm();
+  const { token } = theme.useToken();
 
   const handleSubmit = async (values: { title: string; day_of_week?: number; time: [Dayjs, Dayjs]; is_recurring?: boolean; note?: string }) => {
     try {
@@ -59,47 +60,70 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
           <h3 className="text-lg font-bold text-slate-850 dark:text-slate-100">Khung giờ bận</h3>
         </div>
         <Button
+          type="primary"
           icon={<PlusOutlined />}
           onClick={() => setIsDrawerOpen(true)}
           size="middle"
-          className="!bg-[var(--accent)] hover:!opacity-90 !text-white !rounded-xl !border-0 h-9 px-4 font-semibold text-xs shadow-sm shadow-[var(--accent)]/15 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center"
+          className="!rounded-xl h-9 px-4 font-semibold text-xs shadow-sm cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center text-white"
         >
           Thêm sự kiện
         </Button>
       </div>
-      <Text className="text-slate-400 dark:text-slate-550 mb-6 block text-xs leading-relaxed">
+      <Text className="text-slate-400 dark:text-slate-555 mb-6 block text-xs leading-relaxed">
         Khai báo khung giờ bận cố định trong tuần (VD: Lịch làm thêm, sinh hoạt CLB...).
       </Text>
 
       <div className="flex flex-col gap-0 mt-5">
         {events.length === 0 ? (
-          <div className="py-10 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-            <CalendarOutlined className="text-3xl text-slate-350 dark:text-slate-700 mb-3" />
-            <div className="text-slate-400 dark:text-slate-500 font-medium text-xs">Bạn chưa cấu hình khung giờ bận nào.</div>
+          <div 
+            className="py-10 text-center rounded-2xl border border-dashed"
+            style={{ borderColor: token.colorBorderSecondary }}
+          >
+            <CalendarOutlined className="text-3xl mb-3" style={{ color: token.colorTextDescription }} />
+            <div className="font-medium text-xs text-slate-400 dark:text-slate-500">Bạn chưa cấu hình khung giờ bận nào.</div>
           </div>
         ) : (
           events.map((item) => (
             <div
               key={item.event_id}
-              className="group bg-slate-50/40 dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-300 p-4 rounded-xl border border-slate-150 dark:border-slate-800/80 mb-3 relative overflow-hidden flex items-start justify-between gap-4 shadow-sm"
+              className="group transition-all duration-300 p-4 rounded-xl border mb-3 relative overflow-hidden flex items-start justify-between gap-4 shadow-sm"
+              style={{
+                backgroundColor: token.colorBgContainer,
+                borderColor: token.colorBorderSecondary,
+              }}
             >
               {/* Accent vertical line */}
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--accent)] opacity-60" />
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-1 opacity-70" 
+                style={{ backgroundColor: token.colorPrimary }}
+              />
               <div className="flex-1 pl-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-sm text-slate-850 dark:text-slate-200 group-hover:text-[var(--accent)] transition-colors duration-250">{item.title}</span>
+                  <span className="font-bold text-sm text-slate-850 dark:text-slate-200 transition-colors duration-250 group-hover:text-primary-active">
+                    {item.title}
+                  </span>
                   {item.is_recurring && (
-                    <span className="bg-[var(--accent-bg)] text-[var(--accent)] px-2 py-0.5 rounded-full font-mono text-[8px] uppercase tracking-wider font-bold">
+                    <span 
+                      className="px-2 py-0.5 rounded-full font-mono text-[8px] uppercase tracking-wider font-bold"
+                      style={{
+                        backgroundColor: token.colorPrimaryBg,
+                        color: token.colorPrimary,
+                      }}
+                    >
                       Cố định
                     </span>
                   )}
                 </div>
                 <div className="mt-2 text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                  <span className="flex items-center gap-1.5"><CalendarOutlined className="text-[var(--accent)] text-xs" /> {getDayLabel(item.day_of_week)}</span>
-                  <span className="flex items-center gap-1.5"><ClockCircleOutlined className="text-[var(--accent)] text-xs" /> {item.start_time.slice(0, 5)} - {item.end_time.slice(0, 5)}</span>
+                  <span className="flex items-center gap-1.5">
+                    <CalendarOutlined style={{ color: token.colorPrimary }} className="text-xs" /> {getDayLabel(item.day_of_week)}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <ClockCircleOutlined style={{ color: token.colorPrimary }} className="text-xs" /> {item.start_time.slice(0, 5)} - {item.end_time.slice(0, 5)}
+                  </span>
                 </div>
                 {item.note && (
-                  <div className="mt-1.5 text-[11px] text-slate-400/90 dark:text-slate-500 italic">
+                  <div className="mt-1.5 text-[11px] text-slate-400/90 dark:text-slate-555 italic">
                     Ghi chú: {item.note}
                   </div>
                 )}
@@ -118,7 +142,7 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
                     danger 
                     icon={<DeleteOutlined className="text-sm" />} 
                     type="text" 
-                    className="text-slate-450 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200" 
+                    className="text-slate-450 dark:text-slate-555 hover:text-rose-500 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200" 
                   />
                 </Popconfirm>
               </div>
@@ -128,15 +152,27 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
       </div>
 
       {/* Guide Tip Box */}
-      <div className="mt-8 p-4 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-150 dark:border-slate-800/80 rounded-2xl flex gap-3">
-        <div className="p-2 bg-[var(--accent-bg)] text-[var(--accent)] rounded-xl h-fit">
+      <div 
+        className="mt-8 p-4 border rounded-2xl flex gap-3 shadow-sm"
+        style={{
+          backgroundColor: token.colorBgContainer,
+          borderColor: token.colorBorderSecondary,
+        }}
+      >
+        <div 
+          className="p-2 rounded-xl h-fit"
+          style={{
+            backgroundColor: token.colorPrimaryBg,
+            color: token.colorPrimary,
+          }}
+        >
           <InfoCircleOutlined className="text-base flex" />
         </div>
         <div>
           <h4 className="text-xs font-bold text-slate-700 dark:text-slate-350 mb-0.5">
             Lưu ý xếp lịch tự động
           </h4>
-          <p className="text-[11px] text-slate-400 dark:text-slate-550 leading-relaxed">
+          <p className="text-[11px] text-slate-400 dark:text-slate-555 leading-relaxed">
             Hệ thống sẽ tự động tránh xếp lịch học trùng với các sự kiện cá nhân mà bạn đã khai báo ở đây để tối ưu hóa thời gian biểu của bạn.
           </p>
         </div>
@@ -188,7 +224,7 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
             htmlType="submit" 
             size="large" 
             block 
-            className="mt-6 bg-[var(--accent)] hover:opacity-90 border-0 rounded-lg shadow-sm font-semibold h-11 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center text-white text-sm" 
+            className="mt-6 border-0 rounded-lg shadow-sm font-semibold h-11 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center text-white text-sm" 
             loading={loading}
           >
             Lưu sự kiện bận

@@ -63,11 +63,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, setCollapsed }) => {
 
       {/* RIGHT */}
       <div className="flex items-center gap-6">
-        {/* Notification */}
-        <Badge count={5} size="small">
-          <BellOutlined className="text-lg cursor-pointer" />
-        </Badge>
-
         {/* Theme switch */}
         <Switch
           checked={theme === 'dark'}
