@@ -12,7 +12,7 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, extra, breadcrumbs, icon }) => {
   return (
-    <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
+    <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-100 dark:border-gray-800">
       <div>
         {breadcrumbs && (
           <Breadcrumb
@@ -27,9 +27,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, extra, breadcr
           </div>
           
           <div className="flex flex-col justify-center">
-            <h1 className="!m-0 text-[22px] font-semibold tracking-tight text-gray-800 dark:text-gray-100 leading-tight">
+            <h5 className="!m-0 text-[22px] font-semibold tracking-tight text-gray-800 dark:text-gray-100 leading-tight">
               {title}
-            </h1>
+            </h5>
             {subtitle && <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>}
           </div>
         </div>
