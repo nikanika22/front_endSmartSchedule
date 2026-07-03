@@ -193,10 +193,9 @@ const SchedulePage: React.FC = () => {
             height="auto"
             locale="vi"
             events={buildCalendarEvents(classes, personalEvents, token.colorPrimary)}
-            headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
+            headerToolbar={{ left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
             buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
             firstDay={1}
-            dayHeaderFormat={{ weekday: 'long' }}
             eventContent={(arg) => {
               const lines = arg.event.title.split('\n');
               const mainTitle = lines[0];
@@ -322,7 +321,7 @@ const SchedulePage: React.FC = () => {
                 height="auto"
                 locale="vi"
                 events={buildCalendarEvents(activeSolution.classes, personalEvents, token.colorPrimary)}
-                headerToolbar={{ left: 'today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
+                headerToolbar={{ left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
                 buttonText={{ today: 'Hôm nay', week: 'Tuần', day: 'Ngày' }}
                 firstDay={1}
                 dayHeaderFormat={{ weekday: 'long' }}
