@@ -36,11 +36,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, setCollapsed }) => {
       onClick: () => navigate('/profile'),
     },
     {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Cài đặt',
-    },
-    {
       type: 'divider' as const,
     },
     {

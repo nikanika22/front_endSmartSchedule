@@ -6,5 +6,5 @@ export type User = {
 
   password: string;
 
-  fullName?: string | null;
+ full_name: string;
 };
