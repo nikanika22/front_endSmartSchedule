@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { type Course } from '../types/course-type';
 import { Table, Button, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { courseRoleAdminApi } from '../api/course-api';
+import { courseApi } from '../api/course-api';
 import { enrollmentApi } from '@/features/enrollments/api/enrollment-api';
 import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
 import { generateScheduleThunk } from '@/features/schedules/store/schedules-thunk';
@@ -31,11 +31,12 @@ const CoursePage = () => {
       try {
         setLoading(true);
         const [coursesData, semesterRes, myEnrollments] = await Promise.all([
-          courseRoleAdminApi.getAll(),
+          courseApi.getAll(),
           scheduleApi.getActiveSemester(),
           enrollmentApi.getMyEnrollments(),
         ]);
-        setCourses(coursesData);
+        const coursesList = Array.isArray(coursesData) ? coursesData : (coursesData?.data?.items || []);
+        setCourses(coursesList);
         if (semesterRes?.semester_id) {
           setActiveSemesterId(semesterRes.semester_id);
         }

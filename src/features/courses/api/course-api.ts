@@ -8,10 +8,27 @@ export const getCourseOptions = async () => {
   return res.data;
 };
 
-export const courseRoleAdminApi = {
-  getAll: async () => {
+export const courseApi = {
+  getAll: async (params?: any) => {
     const res = await axiosClient.get(`${API_URL_PREFIX}`);
-    return res.data;
+    const courses = res.data || [];
+    // Hỗ trợ phân trang phía client
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const items = courses.slice(startIndex, endIndex);
+
+    return {
+      data: {
+        items: items,
+        pagination: {
+          total: courses.length,
+          page: page,
+          limit: limit,
+        }
+      }
+    };
   },
 
   getDetail: async (id: string) => {

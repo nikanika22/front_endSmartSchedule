@@ -9,6 +9,7 @@ import {
   AuditOutlined,
   ReadOutlined,
   SettingOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
 import STU_Logo from '@/assets/images/imageSTU.png';
 import { useTheme } from '@/app/providers/theme/hooks/useTheme';
@@ -67,6 +68,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
       label: 'Quản lý Cá Nhân',
       icon: <BookOutlined />,
       children: [
+         {
+          key: '/addCourses',
+          icon: <PlusOutlined />,
+          label: 'Thêm Khóa học',
+        },
         {
           key: '/courses',
           icon: <SolutionOutlined />,
