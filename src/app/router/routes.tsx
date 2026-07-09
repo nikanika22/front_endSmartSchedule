@@ -9,6 +9,8 @@ import RegisterPage from '@/features/auth/pages/RegisterPage';
 import CoursePage from '@/features/courses/pages/CoursePage';
 import ScheduleConfigPage from '@/features/schedule-config/pages/ScheduleConfigPage';
 import SchedulePage from '@/features/schedules/pages/SchedulePage';
+import ProfilePage from '@/features/auth/pages/ProfilePage';
+import CourseClassPage from '@/features/courses/pages/CourseClassPage';
 
 export const router = createBrowserRouter([
   /******************** AUTH *********************/
@@ -43,12 +45,20 @@ export const router = createBrowserRouter([
             index: true,
             element: <DashBoard />,
           },
-          { path: '/courses',
+          { 
+            path: '/addCourses',
+           element: <CourseClassPage/> },
+          { 
+            path: '/courses',
            element: <CoursePage/> },
           { path: '/schedule-config',
            element: <ScheduleConfigPage/> },
           { path: '/schedules',
            element: <SchedulePage/> },
+           {
+            path: '/profile',
+            element: <ProfilePage/>
+           }
      ],
       },
     ],
