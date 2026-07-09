@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Tabs, Button, Progress, Spin, Badge, Tag, theme } from 'antd';
+import { Tabs, Button, Progress, Spin, Badge, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
