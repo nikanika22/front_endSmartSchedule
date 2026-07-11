@@ -1,4 +1,4 @@
-
+import React, { useState } from 'react';
 import { courseApi } from '../api/course-api';
 import useTable from '@/shared/hooks/useTable';
 import type { Course } from '../types/course-type';
@@ -14,6 +14,8 @@ import ModalFormCustom, { type SectionForm } from '@/shared/components/modal/Mod
 import { FormModalMode } from '@/shared/types/form-modal-mode-type';
 import { courseFormFields } from '../constants/course-form-fields';
 import type { CourseFilterParams } from '../types/course-fliter-params';
+import ClassManagementDrawer from '../components/ClassManagementDrawer';
+import { UnorderedListOutlined } from '@ant-design/icons';
 
 const CourseClassPage = () => {
   const { create, getAll, update, remove } = courseApi;
@@ -38,6 +40,20 @@ const CourseClassPage = () => {
   // 2. Hook quản lý trạng thái đóng/mở Modal Form
   const { open, mode, selectedRecord, openCreate, openView, openEdit, close } =
     useFormModal<Course>();
+
+  // Trạng thái Drawer quản lý lớp
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedCourseForClass, setSelectedCourseForClass] = useState<{ id: string; name: string } | null>(null);
+
+  const openClassDrawer = (record: Course) => {
+    setSelectedCourseForClass({ id: record.course_id, name: record.course_name });
+    setDrawerOpen(true);
+  };
+
+  const closeClassDrawer = () => {
+    setDrawerOpen(false);
+    setSelectedCourseForClass(null);
+  };
 
   // 3. Khai báo phần của Form nhập liệu môn học
   const sectionsCourseForm: SectionForm[] = [
@@ -78,6 +94,12 @@ const CourseClassPage = () => {
           <ActionGroup<Course>
             record={record}
             actions={[
+              {
+                show: () => true,
+                icon: <UnorderedListOutlined />,
+                tooltip: 'Quản lý lớp',
+                onClick: openClassDrawer,
+              },
               {
                 show: () => true,
                 icon: <EyeOutlined />,
@@ -154,6 +176,14 @@ const CourseClassPage = () => {
               : (values) => update(selectedRecord!.course_id, values)
           }
           sections={sectionsCourseForm}
+        />
+
+        {/* Drawer Quản lý lớp học */}
+        <ClassManagementDrawer
+          open={drawerOpen}
+          courseId={selectedCourseForClass?.id || null}
+          courseName={selectedCourseForClass?.name}
+          onClose={closeClassDrawer}
         />
       </div>
     </>
