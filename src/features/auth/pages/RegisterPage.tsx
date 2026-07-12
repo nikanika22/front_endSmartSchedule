@@ -1,4 +1,4 @@
-import { Button, Form, Image } from 'antd';
+import { Button, Form, ConfigProvider } from 'antd';
 
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -48,44 +48,29 @@ const RegisterPage = () => {
   };
 
   return (
-    <CardCustom className="w-full max-w-md border-0 shadow-2xl">
-      {/* LOGO */}
-      <div className="mx-auto flex h-24 w-24 items-center justify-center">
-        <Image src={StuLogo} preview={false} />
-      </div>
-
-      {/* HEADER */}
-      <div className="mb-2 text-center">
-        <h1 className="mb-2 font-bold text-2xl">Đăng ký</h1>
-
-        <span className="text-gray-500">Tạo tài khoản để bắt đầu sử dụng hệ thống</span>
+    <CardCustom className="w-full max-w-[420px] mx-auto border border-white/60 !bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-4 sm:p-6">
+      
+      {/* TABS */}
+      <div className="flex mb-8 relative">
+        <div className="absolute bottom-0 w-full h-[2px] bg-gray-100/50 rounded-full"></div>
+        <Link to="/auth/login" className="flex-1 pb-3 text-center border-b-2 border-transparent !text-gray-400 hover:!text-gray-700 font-medium text-base transition-all relative z-10">Đăng nhập</Link>
+        <Link to="/auth/register" className="flex-1 pb-3 text-center border-b-2 border-[#1f3568] !text-[#1f3568] font-bold text-base transition-all relative z-10">Đăng ký</Link>
       </div>
 
       {/* FORM */}
-      <Form form={form} layout="vertical" autoComplete="off" onFinish={onFinish}>
-        <DynamicForm<RegisterPayload> fields={registerFormFields} />
+      <ConfigProvider theme={{ components: { Input: { borderRadius: 12, controlHeight: 44, colorBorder: '#e5e7eb', activeBorderColor: '#1f3568', hoverBorderColor: '#1f3568' } } }}>
+        <Form form={form} layout="vertical" autoComplete="off" onFinish={onFinish}>
+          <DynamicForm<RegisterPayload> fields={registerFormFields} />
 
-        {/* SUBMIT */}
-        <Form.Item className="mb-4!">
-          <Button loading={loading} htmlType="submit" type="primary" block>
-            Đăng ký
-          </Button>
-        </Form.Item>
-      </Form>
+          {/* SUBMIT */}
+          <Form.Item className="mb-2">
+            <Button loading={loading} htmlType="submit" type="primary" block className="!bg-[#1f3568] hover:!bg-[#152446] !border-none h-[44px] rounded-xl text-base font-semibold shadow-lg shadow-blue-900/20 transition-all">
+              Đăng ký
+            </Button>
+          </Form.Item>
+        </Form>
+      </ConfigProvider>
 
-      {/* LOGIN */}
-      <div className="text-center">
-        <span className="text-gray-500">Đã có tài khoản? </span>
-
-        <Link to="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
-          Đăng nhập
-        </Link>
-      </div>
-
-      {/* FOOTER */}
-      <div className="mt-8 text-center">
-        <span className="text-xs text-gray-400">Hệ thống quản lý học tập</span>
-      </div>
     </CardCustom>
   );
 };
