@@ -21,8 +21,6 @@ const CoursePage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [enrolling, setEnrolling] = useState<boolean>(false);
-  const [activeSemesterId, setActiveSemesterId] = useState<string>('');
-
   // Theo dõi trạng thái generate từ Redux
   const generateStatus = useAppSelector((s) => s.schedules.generateStatus);
 
@@ -30,16 +28,12 @@ const CoursePage = () => {
     const initPage = async () => {
       try {
         setLoading(true);
-        const [coursesData, semesterRes, myEnrollments] = await Promise.all([
+        const [coursesData, myEnrollments] = await Promise.all([
           courseApi.getAll(),
-          scheduleApi.getActiveSemester(),
           enrollmentApi.getMyEnrollments(),
         ]);
         const coursesList = Array.isArray(coursesData) ? coursesData : (coursesData?.data?.items || []);
         setCourses(coursesList);
-        if (semesterRes?.semester_id) {
-          setActiveSemesterId(semesterRes.semester_id);
-        }
 
         // Pre-tick các môn đã đăng ký
         const enrolledIds = myEnrollments.map((e: any) => e.course_id);
@@ -54,11 +48,6 @@ const CoursePage = () => {
   }, []);
 
   const handleEnroll = async () => {
-    if (!activeSemesterId) {
-      showNotification('error', 'Lỗi học kỳ', 'Không tìm thấy học kỳ hoạt động. Vui lòng tải lại trang!');
-      return;
-    }
-
     try {
       setEnrolling(true);
 
@@ -70,7 +59,6 @@ const CoursePage = () => {
         selectedRowKeys.map((course_id) =>
           enrollmentApi.create({
             course_id: course_id.toString(),
-            semester_id: activeSemesterId,
           })
         )
       );
@@ -78,7 +66,7 @@ const CoursePage = () => {
       showNotification('success', 'Đăng ký thành công!', 'Hệ thống đang sinh lịch học tối ưu...');
 
       // Bước 3: Dispatch generate schedule vào Redux TRƯỚC khi navigate
-      dispatch(generateScheduleThunk({ semester_id: activeSemesterId, max_solutions: 3 }));
+      dispatch(generateScheduleThunk());
 
       // Bước 4: Navigate sang SchedulePage, báo hiệu đến từ CoursePage
       navigate('/schedules', { state: { fromEnroll: true } });

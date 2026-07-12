@@ -6,8 +6,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
-import { setActiveTabKey } from '../store/schedules-slice';
-import { fetchConfirmedScheduleThunk, confirmScheduleThunk } from '../store/schedules-thunk';
+import { setActiveTabKey, resetSchedules } from '../store/schedules-slice';
+import { scheduleApi } from '../api/schedule-api';
 import { useNotification } from '@/shared/hooks/useNotification';
 import CardCustom from '@/shared/components/card/CardCustom';
 import RowCustom from '@/shared/components/row/RowCustom';
@@ -69,17 +69,19 @@ const ScoreBar = ({
   color,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   color: string;
 }) => (
   <div className="mb-4">
     <div className="flex justify-between text-sm mb-1">
       <span className="text-gray-600 font-medium">{label}</span>
       <span className="font-bold" style={{ color }}>
-        {Math.round(value * 100)}%
+        {typeof value === 'number' ? `${Math.round(value * 100)}%` : value}
       </span>
     </div>
-    <Progress percent={Math.round(value * 100)} strokeColor={color} showInfo={false} strokeWidth={7} />
+    {typeof value === 'number' && (
+      <Progress percent={Math.round(value * 100)} strokeColor={color} showInfo={false} strokeWidth={7} />
+    )}
   </div>
 );
 
@@ -92,14 +94,14 @@ const SchedulePage: React.FC = () => {
 
   const {
     solutions,
-    activeSemester,
     activeTabKey,
-    confirmedSchedule,
     generateStatus,
-    fetchStatus,
-    confirmStatus,
     error,
   } = useAppSelector((s) => s.schedules);
+
+  const [confirmedSchedule, setConfirmedSchedule] = React.useState<any | null>(null);
+  const [fetchStatus, setFetchStatus] = React.useState<'idle' | 'loading' | 'succeeded' | 'failed'>('idle');
+  const [confirmStatus, setConfirmStatus] = React.useState<'idle' | 'loading' | 'succeeded' | 'failed'>('idle');
 
   const personalEvents = useAppSelector((s) => s.scheduleConfig.personalEvents);
 
@@ -107,30 +109,42 @@ const SchedulePage: React.FC = () => {
 
   useEffect(() => {
     const fromEnroll = (location.state as any)?.fromEnroll;
-    if (!fromEnroll) {
-      // Vào thẳng URL hoặc F5 → kiểm tra lịch đã xác nhận chưa
-      dispatch(fetchConfirmedScheduleThunk());
+    if (!fromEnroll && solutions.length === 0) {
+      // Vào thẳng URL hoặc F5 và KHÔNG ĐANG TRONG TRẠNG THÁI CHỌN LỊCH → kiểm tra lịch đã xác nhận chưa
+      const fetchConfirmed = async () => {
+        try {
+          setFetchStatus('loading');
+          const confirmed = await scheduleApi.getCurrentSchedule();
+          setConfirmedSchedule(confirmed);
+          setFetchStatus('succeeded');
+        } catch (err) {
+          console.error(err);
+          setFetchStatus('failed');
+        }
+      };
+      fetchConfirmed();
     }
     // Xóa state để lần navigate sau không bị nhầm
     window.history.replaceState({}, '');
-  }, []);
+  }, [solutions.length]);
 
   const handleConfirm = async () => {
     const idx = parseInt(activeTabKey, 10);
     const selected = solutions[idx];
-    if (!selected || !activeSemester) return;
+    if (!selected) return;
 
-    const result = await dispatch(
-      confirmScheduleThunk({
+    try {
+      setConfirmStatus('loading');
+      const result = await scheduleApi.saveSchedule({
         schedule_id: selected.schedule_id,
-        semester_id: activeSemester.semester_id,
-      }),
-    );
-
-    if (confirmScheduleThunk.fulfilled.match(result)) {
+      });
+      setConfirmedSchedule(result);
+      dispatch(resetSchedules()); // Xóa mảng solutions đi vì đã chọn xong
+      setConfirmStatus('succeeded');
       showNotification('success', 'Xác nhận lịch thành công!', 'Lịch học đã được lưu cố định.');
-    } else {
-      showNotification('error', 'Xác nhận thất bại', result.payload as string);
+    } catch (err: any) {
+      setConfirmStatus('failed');
+      showNotification('error', 'Xác nhận thất bại', err?.response?.data?.message || 'Có lỗi xảy ra');
     }
   };
 
@@ -162,7 +176,7 @@ const SchedulePage: React.FC = () => {
   }
 
   // ── Confirmed schedule (READ-ONLY) ──────────────────────────────
-  if (confirmedSchedule) {
+  if (confirmedSchedule && solutions.length === 0) {
     console.log('Dữ liệu Lịch đã xác nhận (confirmedSchedule) từ BE:', confirmedSchedule);
     const classes: ClassScheduleItem[] = confirmedSchedule.scheduleClasses?.map((sc: any) => ({
       class_id: sc.class_id,
@@ -250,23 +264,32 @@ const SchedulePage: React.FC = () => {
     );
   }
 
-  // ── 3 phương án lịch đề xuất ────────────────────────────────────
   const activeSolution = solutions[parseInt(activeTabKey, 10)];
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Đề xuất Thời khóa biểu"
-        subtitle={`Học kỳ: ${activeSemester?.name ?? ''} · ${solutions.length} phương án tối ưu`}
+        subtitle={`${solutions.length} phương án tối ưu được đề xuất cho bạn`}
         extra={
-          <Button
-            type="primary"
-            size="large"
-            loading={confirmStatus === 'loading'}
-            onClick={handleConfirm}
-          >
-            Xác nhận chọn Lịch này
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              danger 
+              onClick={() => {
+                dispatch(resetSchedules());
+              }}
+            >
+              Hủy đề xuất
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              loading={confirmStatus === 'loading'}
+              onClick={handleConfirm}
+            >
+              Xác nhận chọn Lịch này
+            </Button>
+          </div>
         }
       />
 
@@ -278,7 +301,7 @@ const SchedulePage: React.FC = () => {
             <ScoreBar label="Sở thích buổi học" value={activeSolution.score_pref} color="#0d9488" />
             <ScoreBar label="Giờ nghỉ giải lao" value={activeSolution.score_break} color="#d97706" />
             <ScoreBar label="Cân bằng lịch học" value={activeSolution.score_balance} color="#e11d48" />
-
+            <ScoreBar label="Thuật toán" value={activeSolution.algorithm_tag} color="#3b82f6" />
             <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 border border-gray-100">
               <p className="font-semibold text-gray-700 mb-1">💡 Mẹo nhỏ:</p>
               Hệ thống đã so sánh với lịch cá nhân và sở thích của bạn để tìm lịch học phù hợp nhất.

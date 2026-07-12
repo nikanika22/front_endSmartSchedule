@@ -1,13 +1,7 @@
 import { axiosClient } from '@/shared/lib/axios';
 
-export interface GenerateSchedulePayload {
-  semester_id: string;
-  max_solutions?: number;
-}
-
 export interface SaveSchedulePayload {
   schedule_id: number;
-  semester_id: string;
 }
 
 export interface ActiveSemesterResponse {
@@ -19,13 +13,8 @@ export interface ActiveSemesterResponse {
 }
 
 export const scheduleApi = {
-  getActiveSemester: async (): Promise<ActiveSemesterResponse> => {
-    const res = await axiosClient.get('/semesters/active');
-    return res.data;
-  },
-
-  generateSchedules: async (payload: GenerateSchedulePayload) => {
-    const res = await axiosClient.post('/schedules/generate', payload);
+  generateSchedules: async () => {
+    const res = await axiosClient.post('/schedules/generate');
     return res.data;
   },
 
@@ -34,9 +23,9 @@ export const scheduleApi = {
     return res.data;
   },
 
-  // GET /schedules — trả tất cả schedules, dùng để filter is_selected=true
-  getAllSchedules: async () => {
-    const res = await axiosClient.get('/schedules');
+  // GET /schedules/current — Lấy trực tiếp lịch học đã được xác nhận
+  getCurrentSchedule: async () => {
+    const res = await axiosClient.get('/schedules/current');
     return res.data;
   },
 };

@@ -56,7 +56,7 @@ const CourseClassPage = () => {
   };
 
   // 3. Khai báo phần của Form nhập liệu môn học
-  const sectionsCourseForm: SectionForm[] = [
+  const sectionsCourseForm: SectionForm<any>[] = [
     {
       key: 'courseInfo',
       label: 'Thông tin môn học',

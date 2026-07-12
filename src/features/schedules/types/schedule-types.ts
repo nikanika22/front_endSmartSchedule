@@ -22,6 +22,7 @@ export interface ScheduleSolution {
   score_break: number;
   score_pref: number;
   score_balance: number;
+  algorithm_tag?: string;
   classes: ClassScheduleItem[];
 }
 
