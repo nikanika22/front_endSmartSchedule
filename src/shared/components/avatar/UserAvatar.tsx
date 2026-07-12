@@ -1,17 +1,17 @@
-import { useAppSelector } from '@/app/redux/hooks';
 import { Avatar } from 'antd';
+import { User } from 'lucide-react';
 
 interface UserAvatarProps {
   size?: number;
 }
 
 const UserAvatar: React.FC<UserAvatarProps> = ({ size = 80 }) => {
-  const { user } = useAppSelector((state) => state.auth);
-
   return (
-    <Avatar size={size} src={user?.avatarUrl}>
-      {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-    </Avatar>
+    <Avatar 
+      size={size} 
+      icon={<User size={size / 1.5} />} 
+      className="flex items-center justify-center"
+    />
   );
 };
 

@@ -68,17 +68,20 @@ const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, setCollapsed }) => {
 
         {/* User dropdown */}
         <Dropdown menu={{ items: menuItems }} placement="bottomRight">
-          <div className="flex items-center gap-2 cursor-pointer">
-            <UserAvatar size={46} />
+          <div className="flex items-center gap-2 cursor-pointer transition hover:opacity-80">
+            <UserAvatar size={38} />
 
-            <div className="flex flex-col leading-tight">
-              <span className="text-red-500 text-sm font-medium">
-                {user?.fullName || user?.email}
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {user?.full_name}
               </span>
-              <span className="text-xs text-gray-400">{user?.role}</span>
+              <span className="text-xs text-gray-500">
+                {user?.role}
+              </span>
             </div>
           </div>
         </Dropdown>
+
       </div>
     </Header>
   );
