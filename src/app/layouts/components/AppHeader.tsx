@@ -1,10 +1,8 @@
-import { Layout, Dropdown, Badge, Switch } from 'antd';
+import { Layout, Dropdown, Switch } from 'antd';
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  BellOutlined,
   LogoutOutlined,
-  SettingOutlined,
   ProfileOutlined,
   SunOutlined,
   MoonOutlined,

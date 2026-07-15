@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ScheduleSolution, ActiveSemester } from '../types/schedule-types';
+import type { ScheduleSolution} from '../types/schedule-types';
 import {
   generateScheduleThunk,
 } from './schedules-thunk';

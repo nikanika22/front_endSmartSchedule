@@ -107,6 +107,7 @@ const CoursePage = () => {
 
   const rowSelection = {
     selectedRowKeys,
+    hideSelectAll: true,
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
     },
@@ -129,7 +130,7 @@ const CoursePage = () => {
               loading={enrolling || generateStatus === 'loading'}
               size="large"
             >
-              Đăng ký ({selectedRowKeys.length} môn)
+              Đăng ký
             </Button>
           ) : undefined
         }
@@ -143,6 +144,11 @@ const CoursePage = () => {
         rowKey="course_id"
         pagination={{ pageSize: 10 }}
         tableLayout="fixed"
+        rowClassName={(record) => 
+          selectedRowKeys.includes(record.course_id)
+            ? '[&>td]:!text-blue-600 [&>td]:!font-semibold'
+            : ''
+        }
       />
     </div>
   );

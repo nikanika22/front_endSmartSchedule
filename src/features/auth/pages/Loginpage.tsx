@@ -21,7 +21,7 @@ const Loginpage = () => {
         }),
       ).unwrap();
 
-      await dispatch(getMeThunk()).unwrap();
+      const user = await dispatch(getMeThunk()).unwrap();
 
       showNotification(
         'success',
@@ -29,7 +29,11 @@ const Loginpage = () => {
         'Bạn đã đăng nhập thành công. Vui lòng tiếp tục sử dụng hệ thống.',
       );
 
-      navigate('/', { replace: true });
+      if (user?.role === 'student') {
+        navigate('/courses', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (error: any) {
       showNotification('error', 'Đăng nhập thất bại', typeof error === 'string' ? error : 'Đã xảy ra lỗi. Vui lòng thử lại.');
     }

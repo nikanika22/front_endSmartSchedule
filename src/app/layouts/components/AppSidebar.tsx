@@ -2,17 +2,13 @@ import { Image, Layout, Menu, type MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
-  TeamOutlined,
+
   SolutionOutlined,
-  UserOutlined,
-  BookOutlined,
-  AuditOutlined,
   ReadOutlined,
   SettingOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import STU_Logo from '@/assets/images/imageSTU.png';
-import { useTheme } from '@/app/providers/theme/hooks/useTheme';
 import { USER_ROLE, type UserRole } from '@/features/students/user-role-type'
 import { useAppSelector } from '@/app/redux/hooks';
 
@@ -29,66 +25,40 @@ interface AppSidebarProps {
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
   const { user } = useAppSelector((state) => state.auth);
-  const { theme } = useTheme();
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems: MenuItem[] = [
     {
-      key: '/',
+      key: "/",
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: "Dashboard",
+      roles: [USER_ROLE.ADMIN] // Chỉ Admin mới thấy Dashboard
     },
     {
-      key: 'user-management',
-      label: 'Quản lý người dùng',
-      icon: <TeamOutlined />,
-      roles: [USER_ROLE.ADMIN, USER_ROLE.ADMIN], // Chỉ admin và manager mới thấy menu này
-      children: [
-        {
-          key: '/accounts',
-          icon: <AuditOutlined />,
-          label: 'Tài khoản',
-        },
-        {
-          key: '/students',
-          icon: <UserOutlined />,
-          label: 'Học viên',
-        },
-        {
-          key: '/teachers',
-          icon: <SolutionOutlined />,
-          label: 'Giáo viên',
-        },
-      ],
+      key: "/addCourses",
+      icon: <PlusOutlined />,
+      label: "Thêm Môn học",
+      roles: [USER_ROLE.ADMIN]
     },
     {
-      key: 'academic-management',
-      label: 'Quản lý Cá Nhân',
-      icon: <BookOutlined />,
-      children: [
-         {
-          key: '/addCourses',
-          icon: <PlusOutlined />,
-          label: 'Thêm Khóa học',
-        },
-        {
-          key: '/courses',
-          icon: <SolutionOutlined />,
-          label: 'Khóa học của tôi',
-        },
-        {
-          key: '/schedule-config',
-          icon: <SettingOutlined />,
-          label: 'Cấu hình lịch học',
-        },
-        {
-          key: '/schedules',
-          icon: <ReadOutlined />,
-          label: 'Lịch học của tôi',
-        },
-      ],
+      key: "/courses",
+      icon: <SolutionOutlined />,
+      label: "Quản lý Môn học",
+        roles: [USER_ROLE.STUDENT]
+    },
+    {
+      key: "/schedule-config",
+      icon: <SettingOutlined />,
+      label: "Cấu hình lịch học",
+      roles: [USER_ROLE.STUDENT]
+    },
+    {
+      key: "/schedules",
+      icon: <ReadOutlined />,
+      label: "Lịch học của tôi",
+      roles: [USER_ROLE.STUDENT]
     },
   ];
   const filterMenuByRole = (items: MenuItem[], role?: UserRole): MenuItem[] => {
@@ -105,7 +75,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
         .filter((item) => {
           const isLeaf = !item.children;
           const hasChildren = item.children?.length;
-
           return isLeaf || hasChildren;
         }) as MenuItem[]
     );
