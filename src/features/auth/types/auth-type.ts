@@ -16,3 +16,8 @@ export type RegisterApiPayload = {
     email: string;
     password: string;
 };  
+export type UpdateMePayload = {
+    name?: string;
+    password?: string;
+    old_password?: string;
+};
