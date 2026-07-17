@@ -7,6 +7,8 @@ import {
   ReadOutlined,
   SettingOutlined,
   PlusOutlined,
+  UserAddOutlined,
+  CloudUploadOutlined,
 } from '@ant-design/icons';
 import STU_Logo from '@/assets/images/imageSTU.png';
 import { USER_ROLE, type UserRole } from '@/features/students/user-role-type'
@@ -40,6 +42,18 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
       key: "/addCourses",
       icon: <PlusOutlined />,
       label: "Thêm Môn học",
+      roles: [USER_ROLE.ADMIN]
+    },
+    {
+      key: "/create-admin",
+      icon: <UserAddOutlined />,
+      label: "Cấp tài khoản",
+      roles: [USER_ROLE.ADMIN]
+    },
+    {
+      key: "/import-schedule",
+      icon: <CloudUploadOutlined />,
+      label: "Import Thời khóa biểu",
       roles: [USER_ROLE.ADMIN]
     },
     {

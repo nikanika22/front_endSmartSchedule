@@ -12,6 +12,7 @@ import { dashboardApi } from '../api/dashboard-api';
 import { semesterApi } from '@/features/courses/api/semester-api';
 import PageHeader from '@/shared/components/page/PageHeader';
 import type { ActiveSemester, algorithmCount, algorithmCountResponse } from '../types/dashboard-types';
+import { semesterIdRules, semesterNameRules, semesterDateRangeRules } from '../utils/semesterFormRules';
 
 const { Text } = Typography;
 
@@ -234,13 +235,13 @@ const DashBoard: React.FC = () => {
         cancelText="Hủy"
       >
         <Form form={form} layout="vertical" onFinish={handleCreateSemester}>
-          <Form.Item name="semester_id" label="Mã học kỳ" rules={[{ required: true, message: 'Vui lòng nhập mã học kỳ' }]}>
+          <Form.Item name="semester_id" label="Mã học kỳ" rules={semesterIdRules}>
             <Input placeholder="VD: HK1-2025" />
           </Form.Item>
-          <Form.Item name="name" label="Tên học kỳ" rules={[{ required: true, message: 'Vui lòng nhập tên học kỳ' }]}>
+          <Form.Item name="name" label="Tên học kỳ" rules={semesterNameRules}>
             <Input placeholder="VD: Học kỳ 1 (2024-2025)" />
           </Form.Item>
-          <Form.Item name="dateRange" label="Thời gian" rules={[{ required: true, message: 'Vui lòng chọn thời gian' }]}>
+          <Form.Item name="dateRange" label="Thời gian" rules={semesterDateRangeRules}>
             <DatePicker.RangePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
           </Form.Item>
         </Form>

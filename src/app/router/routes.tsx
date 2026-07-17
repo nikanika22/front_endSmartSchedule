@@ -11,6 +11,7 @@ import ScheduleConfigPage from '@/features/schedule-config/pages/ScheduleConfigP
 import SchedulePage from '@/features/schedules/pages/SchedulePage';
 import ProfilePage from '@/features/auth/pages/ProfilePage';
 import CourseClassPage from '@/features/courses/pages/CourseClassPage';
+import ImportSchedulePage from '@/features/upload/pages/ImportSchedulePage';
 
 export const router = createBrowserRouter([
   /******************** AUTH *********************/
@@ -50,6 +51,14 @@ export const router = createBrowserRouter([
             element: (
               <CourseClassPage/>
             )
+          },
+          {
+            path: '/create-admin',
+            element: <RegisterPage isAdminMode={true} />
+          },
+          {
+            path: '/import-schedule',
+            element: <ImportSchedulePage />
           },
           { 
             path: '/courses',

@@ -6,9 +6,9 @@ export const classApi = {
     return axiosClient.post('/classes', data);
   },
   update: (id: string, data: Partial<Class>) => {
-    return axiosClient.patch(`/classes/${id}`, data);
+    return axiosClient.patch(`/classes/${encodeURIComponent(id)}`, data);
   },
   delete: (id: string) => {
-    return axiosClient.delete(`/classes/${id}`);
+    return axiosClient.delete(`/classes/${encodeURIComponent(id)}`);
   }
 };
