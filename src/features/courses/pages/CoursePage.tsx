@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
 import { generateScheduleThunk } from '@/features/schedules/store/schedules-thunk';
 import { useNotification } from '@/shared/hooks/useNotification';
 import PageHeader from '@/shared/components/page/PageHeader';
-import { scheduleApi } from '@/features/schedules/api/schedule-api';
+
 import { ReadOutlined } from '@ant-design/icons';
 
 const CoursePage = () => {

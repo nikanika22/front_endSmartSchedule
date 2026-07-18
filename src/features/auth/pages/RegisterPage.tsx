@@ -2,7 +2,7 @@ import { Button, Form, ConfigProvider } from 'antd';
 
 import { Link, useNavigate } from 'react-router-dom';
 
-import StuLogo from '@/assets/images/imageSTU.png';
+
 
 import CardCustom from '@/shared/components/card/CardCustom';
 

@@ -1,0 +1,62 @@
+sequenceDiagram
+actor SV as Sinh viên
+    actor AD as Admin
+    participant UI as Giao diện React
+    participant SVC as Auth Service
+    participant DB as Database (students, token_blacklist)
+
+    alt Sinh viên đăng nhập
+        SV->>UI: Nhập email và mật khẩu
+    else Admin đăng nhập
+        AD->>UI: Nhập email và mật khẩu
+    end
+    UI->>SVC: POST /auth/login
+    SVC->>DB: SELECT student BY email
+    DB-->>SVC: Student hoặc null
+    SVC->>SVC: bcrypt.compare(password, password_hash)
+
+    alt Sai thông tin đăng nhập
+        SVC-->>UI: 401 Invalid credentials
+        UI-->>SV: Hiển thị đăng nhập thất bại
+        UI-->>AD: Hiển thị đăng nhập thất bại
+    else Thông tin hợp lệ
+        SVC->>SVC: Tạo JWT có sub, role, jti
+        SVC-->>UI: access_token, expires_at, role
+        UI->>UI: Lưu accessToken
+        UI->>SVC: GET /auth/me + Bearer token
+        SVC->>DB: Kiểm tra jti trong token_blacklist
+        DB-->>SVC: Chưa bị thu hồi
+        SVC->>DB: SELECT student BY email
+        DB-->>SVC: Hồ sơ và role
+        SVC-->>UI: Thông tin người dùng
+        alt role = student
+            UI-->>SV: Chuyển đến /courses
+        else role = admin
+            UI-->>AD: Chuyển đến Dashboard
+        end
+    end
+
+    opt Khôi phục phiên khi tải lại trang
+        UI->>UI: Đọc accessToken
+        UI->>SVC: GET /auth/me
+        SVC->>DB: Kiểm tra blacklist và lấy student
+        DB-->>SVC: Trạng thái token và hồ sơ
+        alt Token hợp lệ
+            SVC-->>UI: Khôi phục user
+        else Token hết hạn hoặc bị thu hồi
+            SVC-->>UI: 401 Unauthorized
+            UI->>UI: Xóa accessToken
+            UI-->>SV: Chuyển về đăng nhập
+            UI-->>AD: Chuyển về đăng nhập
+        end
+    end
+
+    alt Sinh viên đăng xuất
+        SV->>UI: Chọn Đăng xuất
+        UI->>UI: Xóa user và accessToken cục bộ
+        UI-->>SV: Chuyển về trạng thái chưa đăng nhập
+    else Admin đăng xuất
+        AD->>UI: Chọn Đăng xuất
+        UI->>UI: Xóa user và accessToken cục bộ
+        UI-->>AD: Chuyển về trạng thái chưa đăng nhập
+    end

@@ -1,0 +1,26 @@
+sequenceDiagram
+actor SV as Sinh viên
+    participant UI as Giao diện Lịch học của tôi
+    participant SVC as Schedule Service
+    participant DB as Database (semesters, schedules, schedule_classes, classes)
+
+    SV->>UI: Mở Lịch học của tôi hoặc tải lại trang
+    alt Redux còn các phương án vừa sinh
+        UI-->>SV: Hiển thị danh sách phương án để chọn
+    else Không có phương án trong Redux
+        UI->>SVC: GET /schedules/current
+        SVC->>DB: SELECT active semester
+        DB-->>SVC: Semester hoặc null
+        SVC->>DB: SELECT active selected schedule WITH classes
+        DB-->>SVC: Schedule hoặc null
+        alt Chưa có lịch xác nhận
+            SVC-->>UI: 404 SCHEDULE_NOT_FOUND
+            UI-->>SV: Hiển thị chưa có thời khóa biểu
+        else Có lịch xác nhận
+            SVC-->>UI: Lịch và danh sách lớp
+            UI->>UI: Chuyển day_of_week và giờ sang FullCalendar events
+            UI-->>SV: Hiển thị lịch tuần/ngày chỉ đọc
+        end
+    end
+
+    Note over UI: Personal events chỉ được chồng lên lịch nếu trước đó đã có trong Redux scheduleConfig

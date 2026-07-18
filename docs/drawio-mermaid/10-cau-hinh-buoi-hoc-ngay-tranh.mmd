@@ -1,0 +1,39 @@
+sequenceDiagram
+actor SV as Sinh viên
+    participant UI as Giao diện Cấu hình lịch
+    participant SVC as Preferences Service
+    participant DB as Database (preferences, preference_avoid_days)
+    participant CORE as Core AI / Python
+
+    SV->>UI: Mở Cấu hình lịch học
+    UI->>SVC: GET /preferences
+    SVC->>DB: SELECT preference WITH avoid_days
+    DB-->>SVC: Preference hoặc null
+    alt Chưa có cấu hình
+        SVC-->>UI: preferred_slot=null, avoid_days=[]
+    else Đã có cấu hình
+        SVC-->>UI: preferred_slot và avoid_days
+    end
+    UI-->>SV: Hiển thị cấu hình hiện tại
+
+    SV->>UI: Chọn buổi học và các ngày tránh
+    SV->>UI: Bấm Lưu thiết lập
+    par Lưu buổi học mong muốn
+        UI->>SVC: POST /preferences
+        SVC->>DB: UPSERT preference.preferred_slot
+        DB-->>SVC: Preference đã lưu
+        SVC-->>UI: Thành công
+    and Thay thế danh sách ngày tránh
+        UI->>SVC: POST /preferences/avoid-days
+        SVC->>DB: Tạo preference nếu chưa có
+        SVC->>DB: DELETE avoid_days cũ
+        opt Danh sách mới không rỗng
+            SVC->>DB: INSERT preference_avoid_days
+        end
+        DB-->>SVC: Danh sách mới
+        SVC-->>UI: Thành công
+    end
+    UI-->>SV: Thông báo lưu thiết lập thành công
+
+    Note over DB,CORE: Không gọi Core tại thời điểm lưu
+    Note over DB,CORE: Khi sinh lịch, Schedule Service đọc preferred_slot và avoid_days rồi gửi sang Core

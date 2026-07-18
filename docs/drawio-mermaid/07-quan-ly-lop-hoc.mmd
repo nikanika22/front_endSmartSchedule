@@ -1,0 +1,62 @@
+sequenceDiagram
+actor AD as Admin
+    participant UI as Drawer quản lý lớp học
+    participant SVC as Course / Classes Service
+    participant DB as Database (courses, classes, semesters, enrollments)
+
+    AD->>UI: Mở Quản lý lớp của một môn
+    par Lấy môn và các lớp
+        UI->>SVC: GET /courses/:courseId
+        SVC->>DB: SELECT course WITH classes
+        DB-->>SVC: Môn và danh sách lớp
+        SVC-->>UI: Dữ liệu lớp
+    and Lấy danh sách học kỳ
+        UI->>SVC: GET /semesters
+        SVC->>DB: SELECT semesters
+        DB-->>SVC: Danh sách học kỳ
+        SVC-->>UI: Danh sách học kỳ
+    end
+    UI-->>AD: Hiển thị Drawer lớp học
+
+    alt Thêm lớp
+        AD->>UI: Nhập mã lớp, học kỳ, thứ và giờ học
+        UI->>SVC: POST /classes
+        SVC->>DB: Kiểm tra class_id
+        DB-->>SVC: Kết quả
+        alt Mã lớp đã tồn tại
+            SVC-->>UI: 409 CLASS_ID_ALREADY_EXISTS
+        else Mã lớp hợp lệ
+            SVC->>DB: INSERT class
+            DB-->>SVC: Lớp đã tạo
+            SVC-->>UI: Thành công
+        end
+    else Cập nhật lớp
+        AD->>UI: Sửa thông tin lớp
+        UI->>SVC: PATCH /classes/:id
+        SVC->>DB: SELECT class
+        DB-->>SVC: Class hoặc null
+        opt Có đổi course_id
+            SVC->>DB: Kiểm tra course mới
+            DB-->>SVC: Course hoặc null
+        end
+        alt Lớp hoặc môn không tồn tại
+            SVC-->>UI: CLASS_NOT_FOUND hoặc COURSE_NOT_FOUND
+        else Dữ liệu hợp lệ
+            SVC->>DB: UPDATE class
+            DB-->>SVC: Lớp đã cập nhật
+            SVC-->>UI: Thành công
+        end
+    else Xóa lớp
+        AD->>UI: Xác nhận xóa lớp
+        UI->>SVC: DELETE /classes/:id
+        SVC->>DB: DELETE class
+        alt Lớp có sinh viên hoặc ràng buộc
+            DB-->>SVC: Lỗi khóa ngoại
+            SVC-->>UI: CLASS_HAVE_STUDENT
+            UI-->>AD: Không thể xóa
+        else Xóa thành công
+            DB-->>SVC: Thành công
+            SVC-->>UI: Thành công
+            UI-->>AD: Tải lại danh sách lớp
+        end
+    end

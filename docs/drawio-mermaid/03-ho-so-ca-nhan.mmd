@@ -1,0 +1,44 @@
+sequenceDiagram
+actor SV as Sinh viên
+    actor AD as Admin
+    participant UI as Giao diện hồ sơ
+    participant SVC as Students Service
+    participant DB as Database (students, token_blacklist)
+
+    SV->>UI: Mở Thông tin cá nhân
+    AD->>UI: Mở Thông tin cá nhân
+    UI->>SVC: GET /auth/me
+    SVC->>DB: Kiểm tra JWT blacklist
+    DB-->>SVC: Token hợp lệ
+    SVC->>DB: SELECT student BY email
+    DB-->>SVC: Hồ sơ
+    SVC-->>UI: student_id, email, full_name, role
+    UI-->>SV: Hiển thị hồ sơ
+    UI-->>AD: Hiển thị hồ sơ
+
+    alt Cập nhật họ tên
+        SV->>UI: Nhập tên mới và Lưu
+        AD->>UI: Nhập tên mới và Lưu
+        UI->>SVC: PATCH /auth/me {name}
+        SVC->>DB: SELECT student BY student_id
+        DB-->>SVC: Student
+        SVC->>DB: UPDATE students.name
+        DB-->>SVC: Hồ sơ đã cập nhật
+        SVC-->>UI: Cập nhật thành công
+    else Đổi mật khẩu
+        SV->>UI: Nhập mật khẩu cũ và mới
+        AD->>UI: Nhập mật khẩu cũ và mới
+        UI->>SVC: PATCH /auth/me {old_password, password}
+        SVC->>DB: SELECT student BY student_id
+        DB-->>SVC: Student
+        alt Thiếu hoặc sai mật khẩu cũ
+            SVC-->>UI: AUTH_MISSING_OLD_PASSWORD hoặc AUTH_INVALID_OLD_PASSWORD
+            UI-->>SV: Hiển thị lỗi
+            UI-->>AD: Hiển thị lỗi
+        else Mật khẩu cũ đúng
+            SVC->>SVC: Băm mật khẩu mới
+            SVC->>DB: UPDATE password_hash
+            DB-->>SVC: Thành công
+            SVC-->>UI: Đổi mật khẩu thành công
+        end
+    end

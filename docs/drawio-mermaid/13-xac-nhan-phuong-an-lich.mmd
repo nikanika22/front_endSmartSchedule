@@ -1,0 +1,30 @@
+sequenceDiagram
+actor SV as Sinh viên
+    participant UI as Giao diện Đề xuất lịch
+    participant SVC as Schedule Service
+    participant DB as Database (students, semesters, schedules, schedule_classes, classes)
+
+    SV->>UI: Chọn một phương án
+    SV->>UI: Bấm Xác nhận chọn lịch này
+    UI->>SVC: POST /schedules/save {schedule_id}
+    SVC->>DB: Kiểm tra student
+    DB-->>SVC: Student hoặc null
+    SVC->>DB: Lấy học kỳ active
+    DB-->>SVC: Semester hoặc null
+    SVC->>DB: Tìm lịch nháp đúng student, semester và schedule_id
+    DB-->>SVC: Schedule hoặc null
+
+    alt Không tìm thấy lịch nháp
+        SVC-->>UI: 404 SCHEDULE_NOT_FOUND
+        UI-->>SV: Xác nhận thất bại
+    else Tìm thấy lịch
+        SVC->>DB: Chuyển lịch đang chọn trước đó về draft/inactive
+        DB-->>SVC: Đã cập nhật
+        SVC->>DB: Đặt lịch mới selected=true, draft=false, active=true
+        DB-->>SVC: Đã lưu
+        SVC->>DB: SELECT lịch đã chọn WITH scheduleClasses.class
+        DB-->>SVC: Lịch đầy đủ
+        SVC-->>UI: Lịch đã xác nhận
+        UI->>UI: Xóa các proposal trong Redux
+        UI-->>SV: Hiển thị lịch cố định và thông báo thành công
+    end

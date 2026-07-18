@@ -1,0 +1,49 @@
+sequenceDiagram
+actor SV as Sinh viên
+    participant UI as Giao diện Khung giờ bận
+    participant SVC as Personal Events Service
+    participant DB as Database (students, personal_events)
+    participant CORE as Core AI / Python
+
+    SV->>UI: Mở Cấu hình lịch học
+    UI->>SVC: GET /personal-events
+    SVC->>DB: SELECT events BY student_id ORDER BY day,time
+    DB-->>SVC: Danh sách sự kiện
+    SVC-->>UI: Danh sách khung giờ bận
+    UI-->>SV: Hiển thị danh sách
+
+    alt Thêm khung giờ bận
+        SV->>UI: Nhập tiêu đề, thứ, giờ bắt đầu/kết thúc
+        UI->>SVC: POST /personal-events
+        SVC->>DB: Kiểm tra student tồn tại
+        DB-->>SVC: Student hoặc null
+        SVC->>DB: Tìm event cùng thứ có khoảng giờ giao nhau
+        DB-->>SVC: Event trùng hoặc null
+        alt Student không tồn tại
+            SVC-->>UI: STUDENT_NOT_EXISTS
+        else Bị trùng khung giờ
+            SVC-->>UI: 409 PERSONAL_EVENT_TIME_OVERLAP
+            UI-->>SV: Hiển thị lỗi trùng lịch
+        else Hợp lệ
+            SVC->>DB: INSERT personal_event
+            DB-->>SVC: Event đã tạo
+            SVC-->>UI: Thành công
+            UI-->>SV: Thêm event vào danh sách
+        end
+    else Xóa khung giờ bận
+        SV->>UI: Xác nhận xóa
+        UI->>SVC: DELETE /personal-events/:id
+        SVC->>DB: SELECT event BY id AND student_id
+        DB-->>SVC: Event hoặc null
+        alt Không tìm thấy
+            SVC-->>UI: PERSONAL_EVENT_NOT_FOUND
+        else Tìm thấy
+            SVC->>DB: DELETE personal_event
+            DB-->>SVC: Thành công
+            SVC-->>UI: Thành công
+            UI-->>SV: Xóa event khỏi danh sách
+        end
+    end
+
+    Note over DB,CORE: Không gọi Core khi thêm/xóa event
+    Note over DB,CORE: Event lặp theo tuần được Core dùng để loại các lớp trùng giờ khi sinh lịch

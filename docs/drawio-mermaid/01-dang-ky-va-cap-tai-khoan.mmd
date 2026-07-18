@@ -1,0 +1,40 @@
+sequenceDiagram
+actor SV as Sinh viên
+    actor AD as Admin
+    participant UI as Giao diện React
+    participant SVC as Auth / Students Service
+    participant DB as Database (students)
+
+    alt Sinh viên tự đăng ký
+        SV->>UI: Nhập MSSV, họ tên, email, mật khẩu
+        UI->>SVC: POST /auth/register
+    else Admin cấp tài khoản Admin
+        AD->>UI: Nhập thông tin tài khoản Admin mới
+        UI->>SVC: POST /auth/register (role=admin)
+    end
+
+    SVC->>DB: Tìm student_id
+    DB-->>SVC: Kết quả
+    alt MSSV đã tồn tại
+        SVC-->>UI: 409 AUTH_STUDENT_ID_ALREADY_EXISTS
+        UI-->>SV: Hiển thị lỗi
+        UI-->>AD: Hiển thị lỗi
+    else MSSV chưa tồn tại
+        SVC->>DB: Tìm email
+        DB-->>SVC: Kết quả
+        alt Email đã tồn tại
+            SVC-->>UI: 409 AUTH_EMAIL_ALREADY_EXISTS
+            UI-->>SV: Hiển thị lỗi
+            UI-->>AD: Hiển thị lỗi
+        else Dữ liệu hợp lệ
+            SVC->>SVC: Băm mật khẩu bằng bcrypt
+            SVC->>DB: INSERT students
+            DB-->>SVC: Tài khoản đã tạo
+            SVC-->>UI: Đăng ký thành công
+            alt Sinh viên tự đăng ký
+                UI-->>SV: Chuyển sang trang đăng nhập
+            else Admin cấp tài khoản
+                UI-->>AD: Thông báo thành công và xóa form
+            end
+        end
+    end

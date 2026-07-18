@@ -1,0 +1,56 @@
+sequenceDiagram
+actor SV as Sinh viên
+    participant UI as Giao diện Đăng ký môn
+    participant SVC as Enrollment / Schedule Service
+    participant DB as Database (courses, semesters, enrollments, classes, preferences, events)
+    participant CORE as Core AI / Python
+
+    SV->>UI: Mở trang Đăng ký môn học
+    par Lấy danh sách môn
+        UI->>SVC: GET /courses
+        SVC->>DB: SELECT courses
+        DB-->>SVC: Danh sách môn
+        SVC-->>UI: Danh sách môn
+    and Lấy đăng ký hiện tại
+        UI->>SVC: GET /enrollments/my
+        SVC->>DB: SELECT active semester
+        DB-->>SVC: Học kỳ hoạt động
+        SVC->>DB: SELECT enrollments WITH course
+        DB-->>SVC: Các môn đã đăng ký
+        SVC-->>UI: Danh sách đăng ký
+    end
+    UI-->>SV: Hiển thị và đánh dấu các môn đã chọn
+
+    SV->>UI: Chọn lại danh sách môn và bấm Đăng ký
+    UI->>SVC: DELETE /enrollments/my
+    SVC->>DB: DELETE enrollment của học kỳ active
+    DB-->>SVC: Đã xóa
+
+    loop Mỗi course_id được chọn
+        UI->>SVC: POST /enrollments {course_id}
+        SVC->>DB: Kiểm tra học kỳ, môn và enrollment trùng
+        DB-->>SVC: Kết quả
+        alt Môn hoặc học kỳ không tồn tại
+            SVC-->>UI: ENROLLMENT_COURSE_NOT_FOUND hoặc ENROLLMENT_SEMESTER_NOT_FOUND
+        else Enrollment đã có
+            SVC-->>UI: Trả enrollment hiện có
+        else Enrollment mới
+            SVC->>DB: INSERT enrollment
+            DB-->>SVC: Enrollment đã lưu
+            SVC-->>UI: Thành công
+        end
+    end
+
+    alt Tất cả đăng ký thành công
+        UI-->>SV: Thông báo đang sinh lịch
+        UI->>SVC: POST /schedules/generate
+        SVC->>DB: Gom lớp, sở thích, ngày tránh và lịch bận
+        DB-->>SVC: GenerateScheduleRequest
+        SVC->>CORE: POST /schedules/generate
+        Note over SVC,CORE: Chi tiết thuật toán được tách ở sơ đồ 12
+        CORE-->>SVC: Các phương án hoặc danh sách rỗng
+        SVC-->>UI: Kết quả sinh lịch
+        UI-->>SV: Chuyển sang trang đề xuất lịch
+    else Có đăng ký thất bại
+        UI-->>SV: Hiển thị lỗi đăng ký
+    end

@@ -1,0 +1,54 @@
+sequenceDiagram
+actor AD as Admin
+    participant UI as Giao diện Import
+    participant SVC as Upload Service
+    participant DB as Database (courses, classes, semesters)
+
+    AD->>UI: Chọn file môn học và/hoặc file lớp học
+    alt Không chọn file
+        UI-->>AD: Yêu cầu chọn ít nhất một file
+    else Có file
+        opt Có file môn học
+            UI->>SVC: POST /courses/upload-courses
+            SVC->>SVC: Mở workbook và tìm Sheet1
+            SVC->>DB: Lấy các course_id đã tồn tại
+            DB-->>SVC: Tập course_id
+            loop Mỗi dòng môn học
+                SVC->>SVC: Kiểm tra bắt buộc, tín chỉ, trùng trong file và DB
+            end
+            alt File/sheet/dữ liệu không hợp lệ
+                SVC-->>UI: 400 INVALID_FILE_TYPE, SHEET_NOT_FOUND hoặc IMPORT_ERRORS
+            else Dữ liệu hợp lệ
+                SVC->>DB: INSERT courses theo chunk
+                DB-->>SVC: Số môn đã import
+                SVC-->>UI: Import môn học thành công
+            end
+        end
+
+        opt Có file lớp học
+            UI->>SVC: POST /courses/upload-classes
+            SVC->>SVC: Mở workbook và tìm Sheet2
+            par Đọc dữ liệu tham chiếu
+                SVC->>DB: Lấy class_id đã tồn tại
+                DB-->>SVC: Tập class_id
+            and
+                SVC->>DB: Lấy course_id hợp lệ
+                DB-->>SVC: Tập course_id
+            and
+                SVC->>DB: Lấy semester_id hợp lệ
+                DB-->>SVC: Tập semester_id
+            end
+            loop Mỗi dòng lớp học
+                SVC->>SVC: Kiểm tra trường, giờ, thứ, sĩ số và khóa tham chiếu
+            end
+            alt Có ít nhất một lỗi
+                SVC-->>UI: 400 IMPORT_ERRORS kèm chi tiết dòng
+                UI-->>AD: Hiển thị upload thất bại
+            else Toàn bộ dữ liệu hợp lệ
+                SVC->>DB: INSERT classes theo chunk
+                DB-->>SVC: Số lớp đã import
+                SVC-->>UI: Import lớp học thành công
+                UI-->>AD: Hiển thị số loại dữ liệu đã import
+            end
+        end
+    end

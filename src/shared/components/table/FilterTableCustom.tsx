@@ -17,7 +17,7 @@ import {
 } from '@/shared/utils/date';
 import TimePickerCustom from '../timepicker/TimePickerCustom';
 import { useAppSelector } from '@/app/redux/hooks';
-import type { UserRole } from '@/features/users/types/user-role-type';
+import type { UserRole } from '@/features/students/user-role-type';
 
 export interface DataFilter {
   name: string;

@@ -5,7 +5,7 @@ import { useNotification } from '@/shared/hooks/useNotification';
 import { Button, Form, Tabs } from 'antd';
 import { formatFormValues } from '@/shared/utils/form';
 import DynamicForm from '../form/DynamicForm';
-import type { UserRole } from '@/features/users/types/user-role-type';
+import type { UserRole } from '@/features/students/user-role-type';
 import type { FormFieldTypeKey } from '@/shared/types/form-field-type';
 
 export interface FormContext {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { courseApi } from '../api/course-api';
 import useTable from '@/shared/hooks/useTable';
 import type { Course } from '../types/course-type';

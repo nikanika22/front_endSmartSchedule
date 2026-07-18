@@ -1,0 +1,83 @@
+sequenceDiagram
+actor SV as Sinh viên
+    participant UI as Giao diện Đề xuất lịch
+    participant SVC as Schedule Service (NestJS)
+    participant DB as Database (students, semesters, enrollments, courses, classes, preferences, events, schedules)
+    participant CORE as Core AI / FastAPI
+    participant CSP as CSP Solver
+    participant ORT as OR-Tools CP-SAT
+    participant SCORE as Scoring Function
+
+    SV->>UI: Hoàn tất đăng ký môn
+    UI->>SVC: POST /schedules/generate
+
+    SVC->>DB: Kiểm tra student và học kỳ active
+    DB-->>SVC: Student và semester
+    SVC->>DB: Lấy enrollments WITH courses
+    DB-->>SVC: Các môn đã đăng ký
+    SVC->>DB: Lấy tất cả lớp mở của các môn trong học kỳ
+    DB-->>SVC: Danh sách lớp
+    SVC->>DB: Lấy preference, avoid_days và personal_events
+    DB-->>SVC: Dữ liệu cấu hình
+
+    alt Thiếu sinh viên, học kỳ, enrollment, lớp hoặc preference
+        SVC-->>UI: STUDENT_NOT_FOUND, SEMESTER_NOT_FOUND, ENROLLMENT_NOT_FOUND, CLASS_NOT_FOUND hoặc PREFERENCE_NOT_FOUND
+        UI-->>SV: Hiển thị lỗi và gợi ý cấu hình lại
+    else Đủ dữ liệu đầu vào
+        SVC->>CORE: POST /schedules/generate + max_solutions=500
+        CORE->>CORE: Pydantic validate request và avoid_days 2..8
+        alt avoid_days không hợp lệ
+            CORE-->>SVC: 422 Unprocessable Entity
+            SVC-->>UI: ENGINE_ERROR
+        else Request hợp lệ
+            CORE->>CORE: Gom classes theo course_id
+            CORE->>CORE: build_conflict_set O(n²)
+
+            CORE->>CSP: generate_schedules(course_groups, conflicts, avoid_days, events)
+            CSP->>CSP: Lọc domain theo ngày tránh và event lặp
+            loop Backtracking đến max_solutions
+                CSP->>CSP: MRV chọn môn
+                CSP->>CSP: LCV sắp nhóm lớp
+                CSP->>CSP: Forward Checking
+                alt Dead-end
+                    CSP->>CSP: Restore domain và backtrack
+                else Hoàn tất tất cả môn
+                    CSP->>CSP: Ghi nhận một lịch hợp lệ
+                end
+            end
+            CSP-->>CORE: Danh sách nghiệm CSP hoặc []
+
+            CORE->>ORT: solve_schedule(course_groups, conflicts, avoid_days, events)
+            ORT->>ORT: Lọc domain
+            ORT->>ORT: Tạo biến quyết định và ràng buộc xung đột
+            ORT->>ORT: CP-SAT thu thập nghiệm đến max_solutions
+            ORT-->>CORE: Danh sách nghiệm OR-Tools hoặc []
+
+            loop Mỗi nghiệm CSP và OR-Tools
+                CORE->>SCORE: calculate_total_score
+                SCORE->>SCORE: Tính score_break, score_pref, score_balance
+                SCORE-->>CORE: score_total và các thành phần
+            end
+            CORE->>CORE: Lấy top 3 mỗi thuật toán
+            CORE->>CORE: Lọc lịch trùng theo tập class_id
+            CORE->>CORE: Sắp giảm dần, gắn rank và is_recommended
+            CORE-->>SVC: GenerateScheduleResponse
+
+            alt Không có phương án
+                SVC-->>UI: 400 ZERO_SOLUTIONS
+                UI-->>SV: Gợi ý giảm ngày tránh/lịch bận hoặc đổi môn
+            else Có phương án
+                SVC->>DB: BEGIN transaction
+                SVC->>DB: DELETE các lịch nháp cũ
+                loop Mỗi phương án
+                    SVC->>DB: INSERT schedules (is_draft=true)
+                    DB-->>SVC: schedule_id
+                    SVC->>DB: INSERT schedule_classes
+                end
+                SVC->>DB: COMMIT
+                DB-->>SVC: Đã lưu lịch nháp
+                SVC-->>UI: Các phương án kèm điểm và schedule_id
+                UI-->>SV: Hiển thị tab lịch và phương án đề xuất
+            end
+        end
+    end

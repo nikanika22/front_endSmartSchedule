@@ -1,0 +1,38 @@
+sequenceDiagram
+actor AD as Admin
+    participant UI as Giao diện Dashboard
+    participant SVC as Semesters Service
+    participant DB as Database (semesters)
+
+    AD->>UI: Mở danh sách học kỳ
+    UI->>SVC: GET /semesters
+    SVC->>DB: SELECT semesters
+    DB-->>SVC: Danh sách học kỳ
+    SVC-->>UI: Danh sách học kỳ
+    UI-->>AD: Hiển thị danh sách
+
+    alt Thêm học kỳ
+        AD->>UI: Nhập mã, tên và khoảng ngày
+        UI->>SVC: POST /semesters
+        SVC->>DB: INSERT semester (is_active=false)
+        DB-->>SVC: Học kỳ đã tạo
+        SVC-->>UI: Thành công
+        UI->>SVC: GET /semesters
+        SVC->>DB: SELECT semesters
+        DB-->>SVC: Danh sách mới
+        SVC-->>UI: Cập nhật danh sách
+    else Kích hoạt học kỳ
+        AD->>UI: Chọn học kỳ và bấm Áp dụng
+        UI->>SVC: PATCH /semesters/:id/activate
+        SVC->>DB: UPDATE học kỳ active hiện tại thành false
+        DB-->>SVC: Đã hủy active cũ
+        SVC->>DB: UPDATE học kỳ được chọn thành true
+        DB-->>SVC: affected rows
+        alt Không tìm thấy học kỳ
+            SVC-->>UI: 404 SEMESTER_NOT_FOUND
+            UI-->>AD: Hiển thị lỗi
+        else Kích hoạt thành công
+            SVC-->>UI: Thông báo thành công
+            UI-->>AD: Hiển thị học kỳ đang hoạt động
+        end
+    end

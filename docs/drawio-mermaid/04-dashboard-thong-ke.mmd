@@ -1,0 +1,36 @@
+sequenceDiagram
+actor AD as Admin
+    participant UI as Giao diện Dashboard
+    participant SVC as Dashboard Services (NestJS)
+    participant DB as Database (courses, classes, semesters, schedules)
+
+    AD->>UI: Mở Dashboard
+    par Lấy tổng số môn học
+        UI->>SVC: GET /courses/quantity
+        SVC->>DB: COUNT courses
+        DB-->>SVC: totalCourses
+        SVC-->>UI: totalCourses
+    and Lấy tổng số lớp học
+        UI->>SVC: GET /classes/quantity
+        SVC->>DB: COUNT classes
+        DB-->>SVC: totalClasses
+        SVC-->>UI: totalClasses
+    and Lấy học kỳ hoạt động
+        UI->>SVC: GET /semesters/active
+        SVC->>DB: SELECT semester WHERE is_active=true
+        DB-->>SVC: Active semester hoặc null
+        SVC-->>UI: Thông tin học kỳ hoặc 404
+    and Lấy danh sách học kỳ
+        UI->>SVC: GET /semesters
+        SVC->>DB: SELECT semesters
+        DB-->>SVC: Danh sách học kỳ
+        SVC-->>UI: Danh sách học kỳ
+    and Lấy thống kê thuật toán
+        UI->>SVC: GET /schedules/stats
+        SVC->>DB: COUNT lịch đã chọn theo CSP và OR-Tools
+        DB-->>SVC: Số lượng theo thuật toán và tổng
+        SVC-->>UI: Thống kê thuật toán
+    end
+
+    Note over UI,SVC: FE dùng Promise.allSettled nên lỗi một API không chặn toàn bộ Dashboard
+    UI-->>AD: Hiển thị các thống kê tải được

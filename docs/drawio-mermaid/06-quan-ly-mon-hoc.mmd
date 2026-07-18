@@ -1,0 +1,59 @@
+sequenceDiagram
+actor AD as Admin
+    participant UI as Giao diện quản lý môn học
+    participant SVC as Courses Service
+    participant DB as Database (courses, classes)
+
+    AD->>UI: Truy cập Quản lý môn học
+    UI->>SVC: GET /courses
+    SVC->>DB: SELECT courses ORDER BY course_id
+    DB-->>SVC: Danh sách môn
+    SVC-->>UI: Danh sách môn
+    UI-->>AD: Hiển thị, lọc và phân trang phía client
+
+    alt Thêm môn học
+        AD->>UI: Nhập thông tin môn
+        UI->>SVC: POST /courses
+        SVC->>DB: Kiểm tra course_id
+        DB-->>SVC: Kết quả
+        alt Mã môn đã tồn tại
+            SVC-->>UI: 409 COURSE_ID_ALREADY_EXISTS
+            UI-->>AD: Hiển thị lỗi
+        else Mã môn hợp lệ
+            SVC->>DB: INSERT course
+            DB-->>SVC: Môn học đã tạo
+            SVC-->>UI: Thành công
+            UI-->>AD: Cập nhật danh sách
+        end
+    else Xem hoặc sửa môn học
+        AD->>UI: Chọn Chi tiết hoặc Sửa
+        UI->>SVC: GET /courses/:id
+        SVC->>DB: SELECT course WITH classes
+        DB-->>SVC: Course hoặc null
+        alt Không tìm thấy
+            SVC-->>UI: 404 COURSE_NOT_FOUND
+        else Tìm thấy và chỉ xem
+            SVC-->>UI: Chi tiết môn học
+            UI-->>AD: Hiển thị chi tiết
+        else Tìm thấy và cập nhật
+            UI->>SVC: PATCH /courses/:id
+            SVC->>DB: UPDATE course
+            DB-->>SVC: Môn học đã cập nhật
+            SVC-->>UI: Thành công
+        end
+    else Xóa môn học
+        AD->>UI: Xác nhận xóa
+        UI->>SVC: DELETE /courses/:id
+        SVC->>DB: SELECT course WITH classes
+        DB-->>SVC: Course hoặc null
+        SVC->>DB: DELETE course
+        alt Môn còn lớp/ràng buộc
+            DB-->>SVC: Lỗi khóa ngoại
+            SVC-->>UI: COURSE_HAVE_CLASS
+            UI-->>AD: Không thể xóa
+        else Không có ràng buộc
+            DB-->>SVC: Thành công
+            SVC-->>UI: Thành công
+            UI-->>AD: Cập nhật danh sách
+        end
+    end

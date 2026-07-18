@@ -12,7 +12,7 @@ import TimePickerCustom from '../timepicker/TimePickerCustom';
 import DatePickerCustom from '../datepicker/DatePickerCustom';
 import InputTextAreaCustom from '../input/InputTextAreaCustom';
 import { FormFieldType } from '@/shared/types/form-field-type';
-import type { UserRole } from '@/features/users/types/user-role-type';
+import type { UserRole } from '@/features/students/user-role-type';
 import type { FormField } from '../modal/ModalFormCustom';
 import DateTimePickerCustom from '../datetimepicker/DateTimePickerCustom';
 

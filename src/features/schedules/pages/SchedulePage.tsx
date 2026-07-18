@@ -301,7 +301,7 @@ const SchedulePage: React.FC = () => {
             <ScoreBar label="Sở thích buổi học" value={activeSolution.score_pref} color="#0d9488" />
             <ScoreBar label="Giờ nghỉ giải lao" value={activeSolution.score_break} color="#d97706" />
             <ScoreBar label="Cân bằng lịch học" value={activeSolution.score_balance} color="#e11d48" />
-            <ScoreBar label="Thuật toán" value={activeSolution.algorithm_tag} color="#3b82f6" />
+            <ScoreBar label="Thuật toán" value={activeSolution.algorithm_tag ?? 'N/A'} color="#3b82f6" />
             <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 border border-gray-100">
               <p className="font-semibold text-gray-700 mb-1">💡 Mẹo nhỏ:</p>
               Hệ thống đã so sánh với lịch cá nhân và sở thích của bạn để tìm lịch học phù hợp nhất.

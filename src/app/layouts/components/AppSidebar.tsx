@@ -105,7 +105,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
       <Menu
         theme="light" // Đặt menu ở chế độ light để khớp với nền Sider nhạt
         mode="inline"
-        items={filterMenuByRole(menuItems, user?.role)}
+        items={filterMenuByRole(menuItems, user?.role as UserRole)}
         selectedKeys={[location.pathname]}
         onClick={({ key }) => navigate(key)}
       />
