@@ -1,15 +1,12 @@
-import { Layout, Dropdown, Switch } from 'antd';
+import { Layout, Dropdown } from 'antd';
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   LogoutOutlined,
   ProfileOutlined,
-  SunOutlined,
-  MoonOutlined,
 } from '@ant-design/icons';
 import { useAppSelector, useAppDispatch } from '@/app/redux/hooks';
 import { logout } from '@/features/auth/store/auth-slice';
-import { useTheme } from '@/app/providers/theme/hooks/useTheme';
 import { useNavigate } from 'react-router-dom';
 import UserAvatar from '@/shared/components/avatar/UserAvatar';
 
@@ -21,7 +18,6 @@ interface AppHeaderProps {
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, setCollapsed }) => {
-  const { theme, toggleTheme } = useTheme();
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -47,7 +43,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, setCollapsed }) => {
 
   return (
     <Header
-      className={`flex justify-between items-center px-4 border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
+      className="flex justify-between items-center px-4 border-b border-gray-200"
     >
       {/* LEFT */}
       <div className="text-xl cursor-pointer" onClick={() => setCollapsed(!collapsed)}>
@@ -56,21 +52,13 @@ const AppHeader: React.FC<AppHeaderProps> = ({ collapsed, setCollapsed }) => {
 
       {/* RIGHT */}
       <div className="flex items-center gap-6">
-        {/* Theme switch */}
-        <Switch
-          checked={theme === 'dark'}
-          onChange={toggleTheme}
-          checkedChildren={<SunOutlined />}
-          unCheckedChildren={<MoonOutlined />}
-        />
-
         {/* User dropdown */}
         <Dropdown menu={{ items: menuItems }} placement="bottomRight">
           <div className="flex items-center gap-2 cursor-pointer transition hover:opacity-80">
             <UserAvatar size={38} />
 
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              <span className="text-sm font-semibold text-gray-700">
                 {user?.full_name}
               </span>
               <span className="text-xs text-gray-500">

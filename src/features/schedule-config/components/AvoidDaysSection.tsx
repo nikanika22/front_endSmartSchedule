@@ -30,13 +30,13 @@ export const AvoidDaysSection: React.FC<Props> = ({ avoidDays, onChange }) => {
   };
 
   return (
-    <div className="mb-8 pt-7 border-t border-slate-100 dark:border-slate-800">
+    <div className="mb-8 pt-7 border-t border-slate-100">
       {/* Section Header */}
       <div className="mb-3">
-        <h3 className="text-lg font-bold text-slate-850 dark:text-slate-100">Ngày nghỉ cố định</h3>
+        <h3 className="text-lg font-bold text-slate-850">Ngày nghỉ cố định</h3>
       </div>
-      <Text className="text-slate-400 dark:text-slate-550 mb-6 block text-xs leading-relaxed">
-        Chọn những ngày trong tuần bạn muốn hệ thống <span className="font-semibold text-rose-500 dark:text-rose-450">tuyệt đối không xếp lịch học</span>.
+      <Text className="text-slate-400 mb-6 block text-xs leading-relaxed">
+        Chọn những ngày trong tuần bạn muốn hệ thống <span className="font-semibold text-rose-500">tuyệt đối không xếp lịch học</span>.
       </Text>
 
       <div className="grid grid-cols-7 gap-2 max-w-xl mt-4">
@@ -69,7 +69,7 @@ export const AvoidDaysSection: React.FC<Props> = ({ avoidDays, onChange }) => {
               </span>
               <span className="text-sm font-bold">{day.label}</span>
               {isWeekend && !isSelected && (
-                <div className="absolute top-1 right-1.5 w-1 h-1 rounded-full bg-slate-450 dark:bg-slate-600" />
+                <div className="absolute top-1 right-1.5 w-1 h-1 rounded-full bg-slate-450" />
               )}
             </div>
           );
@@ -78,4 +78,3 @@ export const AvoidDaysSection: React.FC<Props> = ({ avoidDays, onChange }) => {
     </div>
   );
 };
-

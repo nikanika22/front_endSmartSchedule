@@ -41,9 +41,9 @@ export const PreferredSlotSection: React.FC<Props> = ({ selectedSlot, onSelect }
     <div className="mb-10">
       {/* Section Header */}
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100">Buổi học mong muốn</h3>
+        <h3 className="text-xl font-bold text-slate-850">Buổi học mong muốn</h3>
       </div>
-      <Text className="text-slate-400 dark:text-slate-555 mb-6 block text-xs leading-relaxed">
+      <Text className="text-slate-400 mb-6 block text-xs leading-relaxed">
         Chọn 1 buổi học trong ngày mà bạn mong muốn hệ thống ưu tiên xếp lịch biểu lên hàng đầu.
       </Text>
 
@@ -92,15 +92,15 @@ export const PreferredSlotSection: React.FC<Props> = ({ selectedSlot, onSelect }
               </div>
 
               <div>
-                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-1">{session.label}</h4>
-                <p className="text-[11px] text-slate-400 dark:text-slate-555 leading-normal">{session.description}</p>
+                <h4 className="font-bold text-sm text-slate-800 mb-1">{session.label}</h4>
+                <p className="text-[11px] text-slate-400 leading-normal">{session.description}</p>
               </div>
 
               <div 
                 className="pt-3 border-t flex items-center justify-between"
                 style={{ borderColor: token.colorBorderSecondary }}
               >
-                <span className="text-[10px] text-slate-400 dark:text-slate-555 font-medium">Khung giờ</span>
+                <span className="text-[10px] text-slate-400 font-medium">Khung giờ</span>
                 <span 
                   className="text-xs font-mono font-semibold"
                   style={{ color: isActive ? token.colorPrimary : token.colorTextSecondary }}

@@ -1,11 +1,10 @@
 import React from 'react';
-import { App, ConfigProvider, theme as antdTheme } from 'antd';
+import { App, ConfigProvider } from 'antd';
 
 import viVN from 'antd/locale/vi_VN';
 import EmptyCustom from '@/shared/components/empty/EmptyCustom';
 import { AppColors } from '@/shared/theme/colors';
 import { AppFontFamily } from '@/shared/theme/fonts';
-import { useTheme } from '@/app/providers/theme/hooks/useTheme';
 
 type AntdProviderProps = {
   children: React.ReactNode;
@@ -13,8 +12,6 @@ type AntdProviderProps = {
 
 /* https://ant.design/components/config-provider */
 const AntdProvider: React.FC<AntdProviderProps> = ({ children }) => {
-  const { theme } = useTheme();
-
   return (
     <ConfigProvider
       // Cấu hình ngôn ngữ toàn bộ Ant Design (DatePicker, Pagination,...)
@@ -23,13 +20,12 @@ const AntdProvider: React.FC<AntdProviderProps> = ({ children }) => {
       renderEmpty={() => <EmptyCustom />}
       // Cấu hình theme toàn cục
       theme={{
-        algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
           // Màu chủ đạo của hệ thống (button, link, active,...)
-          colorPrimary: theme === 'dark' ? '#38bdf8' : AppColors.Primary,
+          colorPrimary: AppColors.Primary,
 
           // Nền chung của Layout (trắng xám)
-          colorBgLayout: theme === 'dark' ? undefined : AppColors.Background,
+          colorBgLayout: AppColors.Background,
 
           // Font chữ dùng toàn bộ app
           fontFamily: AppFontFamily.Primary,
@@ -38,8 +34,8 @@ const AntdProvider: React.FC<AntdProviderProps> = ({ children }) => {
         // Customize riêng từng component
         components: {
           Layout: {
-            headerBg: theme === 'dark' ? '#0f172a' : AppColors.Secondary, // Đồng bộ màu xám với Sidebar ở Light mode
-            siderBg: theme === 'dark' ? '#0f172a' : AppColors.Secondary, // Đồng bộ màu xám ở Light mode
+            headerBg: AppColors.Secondary,
+            siderBg: AppColors.Secondary,
           },
 
           Menu: {
@@ -48,14 +44,6 @@ const AntdProvider: React.FC<AntdProviderProps> = ({ children }) => {
 
             itemHoverBg: 'rgba(0,0,0,0.04)',
 
-            darkItemSelectedBg: AppColors.Primary,
-            darkItemHoverBg: 'rgba(255,255,255,0.1)',
-          },
-
-          Switch: {
-            colorPrimary: AppColors.Primary,
-            colorPrimaryHover: AppColors.PrimaryHover,
-            handleBg: '#fff',
           },
 
           Button: {

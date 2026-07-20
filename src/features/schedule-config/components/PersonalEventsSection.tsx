@@ -54,10 +54,10 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
   };
 
   return (
-    <div className="lg:pt-0 lg:border-t-0 pt-7 border-t border-slate-100 dark:border-slate-800">
+    <div className="lg:pt-0 lg:border-t-0 pt-7 border-t border-slate-100">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-lg font-bold text-slate-850 dark:text-slate-100">Khung giờ bận</h3>
+          <h3 className="text-lg font-bold text-slate-850">Khung giờ bận</h3>
         </div>
         <Button
           type="primary"
@@ -69,7 +69,7 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
           Thêm sự kiện
         </Button>
       </div>
-      <Text className="text-slate-400 dark:text-slate-555 mb-6 block text-xs leading-relaxed">
+      <Text className="text-slate-400 mb-6 block text-xs leading-relaxed">
         Khai báo khung giờ bận cố định trong tuần (VD: Lịch làm thêm, sinh hoạt CLB...).
       </Text>
 
@@ -80,7 +80,7 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
             style={{ borderColor: token.colorBorderSecondary }}
           >
             <CalendarOutlined className="text-3xl mb-3" style={{ color: token.colorTextDescription }} />
-            <div className="font-medium text-xs text-slate-400 dark:text-slate-500">Bạn chưa cấu hình khung giờ bận nào.</div>
+            <div className="font-medium text-xs text-slate-400">Bạn chưa cấu hình khung giờ bận nào.</div>
           </div>
         ) : (
           events.map((item) => (
@@ -99,7 +99,7 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
               />
               <div className="flex-1 pl-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-sm text-slate-850 dark:text-slate-200 transition-colors duration-250 group-hover:text-primary-active">
+                  <span className="font-bold text-sm text-slate-850 transition-colors duration-250 group-hover:text-primary-active">
                     {item.title}
                   </span>
                   {item.is_recurring && (
@@ -114,7 +114,7 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
                     </span>
                   )}
                 </div>
-                <div className="mt-2 text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                <div className="mt-2 text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                   <span className="flex items-center gap-1.5">
                     <CalendarOutlined style={{ color: token.colorPrimary }} className="text-xs" /> {getDayLabel(item.day_of_week)}
                   </span>
@@ -123,7 +123,7 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
                   </span>
                 </div>
                 {item.note && (
-                  <div className="mt-1.5 text-[11px] text-slate-400/90 dark:text-slate-555 italic">
+                  <div className="mt-1.5 text-[11px] text-slate-400/90 italic">
                     Ghi chú: {item.note}
                   </div>
                 )}
@@ -136,13 +136,13 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
                   okText="Xóa"
                   cancelText="Hủy"
                   okButtonProps={{ danger: true, className: 'rounded-lg bg-rose-600 border-0 hover:bg-rose-500 text-white font-medium text-xs h-8 px-3' }}
-                  cancelButtonProps={{ className: 'rounded-lg text-xs h-8 px-3 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700' }}
+                  cancelButtonProps={{ className: 'rounded-lg text-xs h-8 px-3' }}
                 >
                   <Button 
                     danger 
                     icon={<DeleteOutlined className="text-sm" />} 
                     type="text" 
-                    className="text-slate-450 dark:text-slate-555 hover:text-rose-500 dark:hover:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200" 
+                    className="text-slate-450 hover:text-rose-500 hover:bg-rose-50 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200"
                   />
                 </Popconfirm>
               </div>
@@ -169,54 +169,53 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
           <InfoCircleOutlined className="text-base flex" />
         </div>
         <div>
-          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-350 mb-0.5">
+          <h4 className="text-xs font-bold text-slate-700 mb-0.5">
             Lưu ý xếp lịch tự động
           </h4>
-          <p className="text-[11px] text-slate-400 dark:text-slate-555 leading-relaxed">
+          <p className="text-[11px] text-slate-400 leading-relaxed">
             Hệ thống sẽ tự động tránh xếp lịch học trùng với các sự kiện cá nhân mà bạn đã khai báo ở đây để tối ưu hóa thời gian biểu của bạn.
           </p>
         </div>
       </div>
 
       <Drawer
-        title={<span className="font-bold text-base text-slate-800 dark:text-slate-200">Thêm sự kiện bận</span>}
+        title={<span className="font-bold text-base text-slate-800">Thêm sự kiện bận</span>}
         placement="right"
         onClose={() => setIsDrawerOpen(false)}
         open={isDrawerOpen}
         size="default"
-        className="dark:bg-slate-900"
         styles={{ body: { padding: '24px' } }}
       >
         <Form layout="vertical" form={form} onFinish={handleSubmit} requiredMark={false}>
           <Form.Item 
-            label={<span className="font-medium text-xs text-slate-500 dark:text-slate-400">TÊN SỰ KIỆN</span>} 
+            label={<span className="font-medium text-xs text-slate-500">TÊN SỰ KIỆN</span>}
             name="title" 
             rules={[{ required: true, message: 'Vui lòng nhập tên sự kiện bận' }]}
           >
-            <Input size="large" className="rounded-lg dark:bg-slate-850 dark:border-slate-700 dark:text-slate-200 text-sm h-10" placeholder="Vd: Đi làm part-time" />
+            <Input size="large" className="rounded-lg text-sm h-10" placeholder="Vd: Đi làm part-time" />
           </Form.Item>
           
           <Form.Item 
-            label={<span className="font-medium text-xs text-slate-500 dark:text-slate-400">THỨ TRONG TUẦN</span>} 
+            label={<span className="font-medium text-xs text-slate-500">THỨ TRONG TUẦN</span>}
             name="day_of_week" 
             rules={[{ required: true, message: 'Vui lòng chọn thứ trong tuần' }]}
           >
-            <Select size="large" className="rounded-lg text-sm h-10" popupClassName="dark:bg-slate-850" placeholder="Chọn thứ" options={DAYS_OPTIONS} />
+            <Select size="large" className="rounded-lg text-sm h-10" placeholder="Chọn thứ" options={DAYS_OPTIONS} />
           </Form.Item>
           
           <Form.Item 
-            label={<span className="font-medium text-xs text-slate-500 dark:text-slate-400">KHOẢNG THỜI GIAN BẬN</span>} 
+            label={<span className="font-medium text-xs text-slate-500">KHOẢNG THỜI GIAN BẬN</span>}
             name="time" 
             rules={[{ required: true, message: 'Vui lòng chọn khoảng thời gian' }]}
           >
-            <RangePicker size="large" className="w-full rounded-lg dark:bg-slate-850 dark:border-slate-700 text-sm h-10" format="HH:mm" placeholder={['Bắt đầu', 'Kết thúc']} />
+            <RangePicker size="large" className="w-full rounded-lg text-sm h-10" format="HH:mm" placeholder={['Bắt đầu', 'Kết thúc']} />
           </Form.Item>
  
           <Form.Item 
-            label={<span className="font-medium text-xs text-slate-500 dark:text-slate-400">GHI CHÚ (TÙY CHỌN)</span>} 
+            label={<span className="font-medium text-xs text-slate-500">GHI CHÚ (TÙY CHỌN)</span>}
             name="note"
           >
-            <Input.TextArea rows={3} className="rounded-lg dark:bg-slate-850 dark:border-slate-700 dark:text-slate-200 text-sm" placeholder="Nhập thêm ghi chú chi tiết..." />
+            <Input.TextArea rows={3} className="rounded-lg text-sm" placeholder="Nhập thêm ghi chú chi tiết..." />
           </Form.Item>
  
           <Button 
