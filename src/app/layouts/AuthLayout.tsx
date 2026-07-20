@@ -6,7 +6,7 @@ const { Content } = Layout;
 
 const AuthLayout = () => {
   return (
-    <Layout className="min-h-screen flex items-center justify-center p-4 bg-[#f8fafc]">
+    <Layout className="min-h-screen flex items-center justify-center p-4">
       <Content className="w-full max-w-[420px] flex flex-col items-center justify-center relative z-10">
         
         {/* Beautiful Centered Logo */}
