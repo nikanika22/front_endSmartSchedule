@@ -1,10 +1,9 @@
 import type { RuleObject } from 'antd/es/form';
 import dayjs from 'dayjs';
 
-// ────────────────────────────────────────────────────────────
 //  Rule: Mã học kỳ  (semester_id)
 //  Định dạng hợp lệ: HK1-2025 | HK2-2025 | HK3-2025
-// ────────────────────────────────────────────────────────────
+
 export const semesterIdRules: RuleObject[] = [
   {
     required: true,
@@ -38,10 +37,10 @@ export const semesterIdRules: RuleObject[] = [
   },
 ];
 
-// ────────────────────────────────────────────────────────────
+
 //  Rule: Tên học kỳ  (name)
 //  Định dạng hợp lệ: Học kỳ 1 (2024-2025)
-// ────────────────────────────────────────────────────────────
+
 export const semesterNameRules: RuleObject[] = [
   {
     required: true,
@@ -75,12 +74,9 @@ export const semesterNameRules: RuleObject[] = [
     },
   },
 ];
-
-// ────────────────────────────────────────────────────────────
 //  Rule: Thời gian học kỳ  (dateRange)
 //  - Ngày bắt đầu: không quá 2 năm trong quá khứ / tương lai
 //  - Độ dài học kỳ: 30 – 270 ngày (1 tháng đến ~9 tháng)
-// ────────────────────────────────────────────────────────────
 export const semesterDateRangeRules: RuleObject[] = [
   {
     required: true,

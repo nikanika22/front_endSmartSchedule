@@ -11,7 +11,7 @@ const AuthLayout = () => {
         
         {/* Beautiful Centered Logo */}
         <div className="mb-8 flex items-center justify-center">
-          <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white shadow-xl p-3 ring-1 ring-gray-100 transition-transform hover:scale-105 duration-300">
+          <div className="flex h-28 w-28 items-center justify-center rounded-full p-3 transition-transform hover:scale-105 duration-300">
             <img src={StuLogo} alt="STU Logo" className="h-full w-full object-contain drop-shadow-sm" />
           </div>
         </div>
