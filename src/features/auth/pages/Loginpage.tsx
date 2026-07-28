@@ -3,7 +3,7 @@ import { Button, Form, ConfigProvider } from 'antd';
 import DynamicForm from '@/shared/components/form/DynamicForm';
 import type { LoginPayLoad } from '../types/auth-type';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '@/app/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
 import { useNotification } from '@/shared/hooks/useNotification';
 import { loginThunk, getMeThunk } from '../store/auth-thunk';
 import { loginFormFields } from '../constaints/login-form-fields';
@@ -12,6 +12,7 @@ const Loginpage = () => {
     const {showNotification}=useNotification();
     const navigate=useNavigate();
     const [form] =Form.useForm<LoginPayLoad>();
+    const { loading } = useAppSelector((state) => state.auth); 
     const onFinish = async (values: LoginPayLoad) => {
     try {
       await dispatch(
@@ -52,14 +53,8 @@ const Loginpage = () => {
         <Form form={form} layout="vertical" autoComplete="off" onFinish={onFinish}>
           <DynamicForm<LoginPayLoad> fields={loginFormFields} />
 
-          <div className="mb-6 flex items-center justify-end">
-            <Link to="/auth/forgot-password" className="text-sm !text-[#1f3568] font-medium hover:!text-[#152446] transition-colors">
-              Quên mật khẩu?
-            </Link>
-          </div>
-
           <Form.Item className="mb-2">
-            <Button loading={false} htmlType="submit" type="primary" block className="!bg-[#1f3568] hover:!bg-[#152446] !border-none h-[44px] rounded-xl text-base font-semibold shadow-lg shadow-blue-900/20 transition-all">
+            <Button loading={loading} htmlType="submit" type="primary" block className="!bg-[#1f3568] hover:!bg-[#152446] !border-none h-[44px] rounded-xl text-base font-semibold shadow-lg shadow-blue-900/20 transition-all">
               Đăng nhập
             </Button>
           </Form.Item>

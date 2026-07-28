@@ -17,18 +17,12 @@ interface useTableProps<P> {
 
   removeApi?: (id: string) => Promise<any>;
 
-  activeApi?: (id: string) => Promise<any>;
-
-  inActiveApi?: (id: string) => Promise<any>;
-
   initialFilters?: Partial<P>;
 }
 
 const useTable = <T, P>({
   fetchApi,
   removeApi,
-  activeApi,
-  inActiveApi,
   initialFilters = {},
 }: useTableProps<P>) => {
   const { showNotification } = useNotification();
@@ -129,42 +123,6 @@ const useTable = <T, P>({
     }
   };
 
-  const handleActive = async (id: string) => {
-    if (!activeApi) return;
-
-    try {
-      const res = await activeApi(id);
-
-      showNotification('success', 'Chuyển trạng thái', res.message || 'Kích hoạt thành công');
-
-      fetchData();
-    } catch (error: any) {
-      showNotification(
-        'error',
-        'Chuyển trạng thái',
-        error?.response?.data?.message || 'Đã có lỗi xảy ra',
-      );
-    }
-  };
-
-  const handleInActive = async (id: string) => {
-    if (!inActiveApi) return;
-
-    try {
-      const res = await inActiveApi(id);
-
-      showNotification('success', 'Chuyển trạng thái', res.message || 'Ngưng hoạt động thành công');
-
-      fetchData();
-    } catch (error: any) {
-      showNotification(
-        'error',
-        'Chuyển trạng thái',
-        error?.response?.data?.message || 'Đã có lỗi xảy ra',
-      );
-    }
-  };
-
   return {
     data,
 
@@ -172,13 +130,7 @@ const useTable = <T, P>({
 
     pagination,
 
-    params,
-
     filterValues,
-
-    setParams,
-
-    setFilterValues,
 
     handleFilterChange,
 
@@ -189,10 +141,6 @@ const useTable = <T, P>({
     handleChangePage,
 
     handleDelete,
-
-    handleActive,
-
-    handleInActive,
 
     refetch: fetchData,
   };

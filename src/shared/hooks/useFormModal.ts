@@ -37,7 +37,5 @@ export const useFormModal = <T>() => {
     openView,
     openEdit,
     close,
-
-    setSelectedRecord,
   };
 };

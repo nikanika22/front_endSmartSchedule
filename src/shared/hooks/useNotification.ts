@@ -4,7 +4,7 @@ export const useNotification = () => {
   const { notification } = App.useApp();
 
   const showNotification = (
-    type: 'success' | 'error' | 'info' | 'warning',
+    type: 'success' | 'error' | 'warning',
     title: string,
     description?: string,
   ) => {
