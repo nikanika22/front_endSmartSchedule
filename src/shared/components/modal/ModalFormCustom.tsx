@@ -3,45 +3,23 @@ import { FormModalMode, type FormModalModeType } from '../../types/form-modal-mo
 import ModalCustom from './ModalCustom';
 import { useNotification } from '@/shared/hooks/useNotification';
 import { Button, Form, Tabs } from 'antd';
-import { formatFormValues } from '@/shared/utils/form';
 import DynamicForm from '../form/DynamicForm';
-import type { UserRole } from '@/features/students/user-role-type';
 import type { FormFieldTypeKey } from '@/shared/types/form-field-type';
+import type { ElementType } from 'react';
 
 export interface FormContext {
-  role: UserRole;
-  mode: FormModalModeType;
+  mode?: FormModalModeType;
 }
 
 export interface FormField<T> {
   name: keyof T;
-
   label: string;
-
   type: FormFieldTypeKey;
-
   placeholder?: string;
-
-  disabled?: any;
-
-  hidden?: any;
-
+  disabled?: boolean | ((context: FormContext) => boolean);
   rules?: any[];
-
-  options?: {
-    label: string;
-    value: string | number;
-  }[];
-
-  fetchOptions?: () => Promise<any>;
-
   col?: number;
-
-  props?: any;
-
-  icon?: any;
-
-  onChange?: (value: any, options: any, form: any) => void;
+  icon?: ElementType;
 }
 
 export interface SectionForm<T> {
@@ -58,8 +36,6 @@ interface ModalFormCustomProps<T> {
   mode: FormModalModeType;
 
   initialValues?: Partial<T> | null;
-
-  loading?: boolean;
 
   sections: SectionForm<T>[];
 
@@ -94,9 +70,7 @@ const ModalFormCustom = <T,>({
     }
 
     if (initialValues) {
-      const formattedValues = formatFormValues(initialValues as T, sections);
-
-      form.setFieldsValue(formattedValues);
+      form.setFieldsValue(initialValues);
     }
   }, [open, initialValues, sections, form]);
 
@@ -104,10 +78,8 @@ const ModalFormCustom = <T,>({
     try {
       setLoading(true);
 
-      const formattedValues = formatFormValues(values, sections);
-
       if (onSubmit) {
-        await onSubmit(formattedValues);
+        await onSubmit(values);
       }
 
       showNotification('success', 'Thành công', 'Dữ liệu đã được lưu thành công');

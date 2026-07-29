@@ -12,7 +12,7 @@ export const loginFormFields: FormField<LoginPayLoad>[] = [
     icon: MailOutlined,
     rules: [
       {
-        require: true,
+        required: true,
        pattern: /^dh\d+@student\.stu\.edu\.vn$/,
         message: 'Email phải thuộc trường STU, ví dụ: dh52200762@student.stu.edu.vn',
       },
