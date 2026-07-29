@@ -122,7 +122,7 @@ const ImportSchedulePage: React.FC = () => {
               icon={<CloudUploadOutlined />}
               onClick={handleUpload}
               disabled={courseFileList.length === 0 && classFileList.length === 0}
-              className="px-10 font-medium h-[44px] rounded-lg !bg-[#22d10f] hover:!bg-[#000000]"
+              className="px-10 font-medium h-11 rounded-lg bg-[#22d10f]! hover:bg-[#000000]!"
             >
               Kích hoạt Import
             </Button>
