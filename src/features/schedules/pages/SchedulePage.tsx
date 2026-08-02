@@ -108,6 +108,12 @@ const SchedulePage: React.FC = () => {
 
 
   useEffect(() => {
+    if (generateStatus === 'failed' && error) {
+      showNotification('error', 'Sinh thời khóa biểu thất bại', error);
+    }
+  }, [generateStatus, error]);
+
+  useEffect(() => {
     const fromEnroll = (location.state as any)?.fromEnroll;
     if (!fromEnroll && solutions.length === 0) {
       // Vào thẳng URL hoặc F5 và KHÔNG ĐANG TRONG TRẠNG THÁI CHỌN LỊCH → kiểm tra lịch đã xác nhận chưa

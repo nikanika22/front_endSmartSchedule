@@ -1,77 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { type Course } from '../types/course-type';
-import { Table, Button, theme } from 'antd';
+import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { courseApi } from '../api/course-api';
 import { enrollmentApi } from '@/features/enrollments/api/enrollment-api';
 import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
 import { generateScheduleThunk } from '@/features/schedules/store/schedules-thunk';
 import { useNotification } from '@/shared/hooks/useNotification';
+import useTable from '@/shared/hooks/useTable';
 import PageHeader from '@/shared/components/page/PageHeader';
-
+import TablePaginationCustom from '@/shared/components/table/TablePaginationCustom';
 import { ReadOutlined } from '@ant-design/icons';
 
 const CoursePage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { showNotification } = useNotification();
-  const { token } = theme.useToken();
 
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [enrolling, setEnrolling] = useState<boolean>(false);
-  // Theo dõi trạng thái generate từ Redux
   const generateStatus = useAppSelector((s) => s.schedules.generateStatus);
 
-  useEffect(() => {
-    const initPage = async () => {
-      try {
-        setLoading(true);
-        const [coursesData, myEnrollments] = await Promise.all([
-          courseApi.getAll(),
-          enrollmentApi.getMyEnrollments(),
-        ]);
-        const coursesList = Array.isArray(coursesData) ? coursesData : (coursesData?.data?.items || []);
-        setCourses(coursesList);
-
-        // Pre-tick các môn đã đăng ký
-        const enrolledIds = myEnrollments.map((e: any) => e.course_id);
-        setSelectedRowKeys(enrolledIds);
-      } catch (error) {
-        console.error('Failed to fetch initial data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    initPage();
-  }, []);
+  const { data: courses, loading, pagination, handleChangePage } = useTable<Course, any>({
+    fetchApi: courseApi.getAll,
+  });
 
   const handleEnroll = async () => {
     try {
       setEnrolling(true);
-
-      // Bước 1: Xóa toàn bộ enrollment cũ
       await enrollmentApi.deleteMyEnrollments();
-
-      // Bước 2: Tạo lại theo selection hiện tại (song song)
       await Promise.all(
         selectedRowKeys.map((course_id) =>
-          enrollmentApi.create({
-            course_id: course_id.toString(),
-          })
+          enrollmentApi.create({ course_id: course_id.toString() })
         )
       );
-
       showNotification('success', 'Đăng ký thành công!', 'Hệ thống đang sinh lịch học tối ưu...');
-
-      // Bước 3: Dispatch generate schedule vào Redux TRƯỚC khi navigate
       dispatch(generateScheduleThunk());
-
-      // Bước 4: Navigate sang SchedulePage, báo hiệu đến từ CoursePage
       navigate('/schedules', { state: { fromEnroll: true } });
     } catch (error: any) {
-      console.error('Lỗi khi đăng ký:', error);
       showNotification(
         'error',
         'Đăng ký thất bại',
@@ -83,41 +49,14 @@ const CoursePage = () => {
   };
 
   const columns = [
-    {
-      title: 'Mã khóa học',
-      dataIndex: 'course_id',
-      width: 150,
-    },
-    {
-      title: 'Tên khóa học',
-      dataIndex: 'course_name',
-    },
-    {
-      title: 'Số tín chỉ',
-      dataIndex: 'credits',
-      align: 'center' as const,
-      width: 120,
-    },
-    {
-      title: 'Khoa',
-      dataIndex: 'department',
-      width: 250,
-    },
+    { title: 'Mã khóa học', dataIndex: 'course_id', width: 150 },
+    { title: 'Tên khóa học', dataIndex: 'course_name' },
+    { title: 'Số tín chỉ', dataIndex: 'credits', align: 'center' as const, width: 120 },
+    { title: 'Khoa', dataIndex: 'department', width: 250 },
   ];
 
-  const rowSelection = {
-    selectedRowKeys,
-    hideSelectAll: true,
-    onChange: (newSelectedRowKeys: React.Key[]) => {
-      setSelectedRowKeys(newSelectedRowKeys);
-    },
-  };
-
   return (
-    <div 
-      className="flex flex-col h-full p-6 -m-6 min-h-[calc(100vh-64px)]"
-      style={{ backgroundColor: token.colorBgContainer }}
-    >
+    <div className="flex flex-col gap-4">
       <PageHeader
         title="Đăng ký môn học"
         subtitle="Chọn các môn học bạn muốn đăng ký trong học kỳ này"
@@ -136,15 +75,19 @@ const CoursePage = () => {
         }
       />
 
-      <Table<Course>
-        rowSelection={rowSelection}
+      <TablePaginationCustom<Course>
         columns={columns}
-        dataSource={courses}
+        data={courses}
         loading={loading}
+        pagination={pagination}
+        onChangePage={handleChangePage}
+        rowSelection={{
+          selectedRowKeys,
+          hideSelectAll: true,
+          onChange: setSelectedRowKeys,
+        }}
         rowKey="course_id"
-        pagination={{ pageSize: 10 }}
-        tableLayout="fixed"
-        rowClassName={(record) => 
+        rowClassName={(record: Course) =>
           selectedRowKeys.includes(record.course_id)
             ? '[&>td]:!text-blue-600 [&>td]:!font-semibold'
             : ''
