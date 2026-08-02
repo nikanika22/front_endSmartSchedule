@@ -1,18 +1,22 @@
 import { axiosClient } from '@/shared/lib/axios';
 
 const API_URL_PREFIX = '/courses';
-
-export const getCourseOptions = async () => {
-  const res = await axiosClient.get(`${API_URL_PREFIX}/options`, {});
-
-  return res.data;
-};
-
 export const courseApi = {
   getAll: async (params?: any) => {
     const res = await axiosClient.get(`${API_URL_PREFIX}`);
-    const courses = res.data || [];
-    // Hỗ trợ phân trang phía client
+    let courses = res.data || [];
+
+    // Filter phía Client — trên toàn bộ data đã load về browser
+    if (params?.keySearch) {
+      const key = params.keySearch.toLowerCase().trim();
+      courses = courses.filter(
+        (item: any) =>
+          item.course_name?.toLowerCase().includes(key) ||
+          item.course_id?.toLowerCase().includes(key)
+      );
+    }
+
+    // Phân trang trên mảng đã được filter
     const page = params?.page || 1;
     const limit = params?.limit || 10;
     const startIndex = (page - 1) * limit;
@@ -23,11 +27,11 @@ export const courseApi = {
       data: {
         items: items,
         pagination: {
-          total: courses.length,
+          total: courses.length, // tổng sau filter (để pagination hiển thị đúng)
           page: page,
           limit: limit,
-        }
-      }
+        },
+      },
     };
   },
 

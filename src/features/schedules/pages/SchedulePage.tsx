@@ -148,7 +148,7 @@ const SchedulePage: React.FC = () => {
     }
   };
 
-  // ── Loading states ──────────────────────────────────────────────
+  // Loading states 
   const isLoading =
     generateStatus === 'loading' || fetchStatus === 'loading';
 
@@ -165,7 +165,7 @@ const SchedulePage: React.FC = () => {
     );
   }
 
-  // ── Error state ─────────────────────────────────────────────────
+  // Error state 
   if (error && !confirmedSchedule && solutions.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center h-[70vh] gap-4">
@@ -175,8 +175,8 @@ const SchedulePage: React.FC = () => {
     );
   }
 
-  // ── Confirmed schedule (READ-ONLY) ──────────────────────────────
-  if (confirmedSchedule && solutions.length === 0) {
+    //Confirmed schedule (READ-ONLY)
+    if (confirmedSchedule && solutions.length === 0) {
     console.log('Dữ liệu Lịch đã xác nhận (confirmedSchedule) từ BE:', confirmedSchedule);
     const classes: ClassScheduleItem[] = confirmedSchedule.scheduleClasses?.map((sc: any) => ({
       class_id: sc.class_id,
