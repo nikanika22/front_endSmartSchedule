@@ -5,17 +5,13 @@ import type { Course } from '../types/course-type';
 import PageHeader from '@/shared/components/page/PageHeader';
 import { Button } from 'antd';
 import { useFormModal } from '@/shared/hooks/useFormModal';
-import FilterTableCustom from '@/shared/components/table/FilterTableCustom';
-import { courseFilters } from '../constants/course-filter-table';
 import TablePaginationCustom from '@/shared/components/table/TablePaginationCustom';
-import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import ActionGroup from '@/shared/components/table/ActionGroup';
 import ModalFormCustom, { type SectionForm } from '@/shared/components/modal/ModalFormCustom';
 import { FormModalMode } from '@/shared/types/form-modal-mode-type';
 import { courseFormFields } from '../constants/course-form-fields';
-import type { CourseFilterParams } from '../types/course-fliter-params';
 import ClassManagementDrawer from '../components/ClassManagementDrawer';
-import { UnorderedListOutlined } from '@ant-design/icons';
 
 const CourseClassPage = () => {
   const { create, getAll, update, remove } = courseApi;
@@ -25,14 +21,10 @@ const CourseClassPage = () => {
     data: courses,
     loading,
     pagination,
-    filterValues,
     handleDelete,
     handleChangePage,
-    handleFilterChange,
-    handleFilterSubmit,
-    handleFilterReset,
     refetch,
-  } = useTable<Course, CourseFilterParams>({
+  } = useTable<Course, any>({
     fetchApi: getAll,
     removeApi: remove,
   });
@@ -140,18 +132,6 @@ const CourseClassPage = () => {
             </Button>
           }
         />
-        
-        {/* Bộ lọc/Tìm kiếm đơn giản */}
-        <div className="mb-4">
-          
-          <FilterTableCustom
-            dataFilters={courseFilters}
-            values={filterValues}
-            onChange={handleFilterChange}
-            onReset={handleFilterReset}
-            onSubmit={handleFilterSubmit}
-          />
-        </div>
 
         {/* Bảng phân trang dữ liệu */}
         <TablePaginationCustom<Course>
