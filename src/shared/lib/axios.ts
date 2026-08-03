@@ -30,7 +30,13 @@ axiosClient.interceptors.response.use(
       localStorage.removeItem('accessToken');
 
       // 2. Chuyển hướng người dùng về trang Đăng nhập
-      window.location.href = '/auth/login';
+      // Bỏ qua chuyển hướng nếu đang ở ngay trang login hoặc đang gọi API login
+      const isAuthRequest = error.config?.url?.includes('/auth/login');
+      const isAlreadyOnLoginPage = window.location.pathname === '/auth/login';
+      
+      if (!isAuthRequest && !isAlreadyOnLoginPage) {
+        window.location.href = '/auth/login';
+      }
     }
 
     return Promise.reject(error);
