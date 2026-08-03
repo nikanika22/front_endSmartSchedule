@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { type Course } from '../types/course-type';
 import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +24,19 @@ const CoursePage = () => {
   const { data: courses, loading, pagination, handleChangePage } = useTable<Course, any>({
     fetchApi: courseApi.getAll,
   });
+
+  useEffect(() => {
+    const fetchMyEnrollments = async () => {
+      try {
+        const myEnrollments = await enrollmentApi.getMyEnrollments();
+        const enrolledIds = myEnrollments.map((e) => e.course_id);
+        setSelectedRowKeys(enrolledIds);
+      } catch (error) {
+        console.error('Failed to fetch my enrollments:', error);
+      }
+    };
+    fetchMyEnrollments();
+  }, []);
 
   const handleEnroll = async () => {
     try {
