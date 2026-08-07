@@ -10,6 +10,11 @@ export interface UpdatePreferenceDto {
   preferred_slot: PreferredSlot;
 }
 
+export interface SchedulePreferences {
+  preferred_slot: PreferredSlot | null;
+  avoid_days: number[];
+}
+
 export interface AvoidDaysDto {
   days: number[];
 }

@@ -1,73 +1,127 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useEffectEvent, useState } from 'react';
 import { Button, Spin } from 'antd';
+import axios from 'axios';
 import { PreferredSlotSection } from '../components/PreferredSlotSection';
 import { AvoidDaysSection } from '../components/AvoidDaysSection';
 import { PersonalEventsSection } from '../components/PersonalEventsSection';
-import type { CreatePersonalEventDto } from '../types';
-import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
-import {
-  fetchScheduleConfigThunk,
-  savePreferencesThunk,
-  createPersonalEventThunk,
-  deletePersonalEventThunk,
-} from '../store/schedule-config-thunk';
-import { setPreferredSlot, setAvoidDays } from '../store/schedule-config-slice';
+import type { CreatePersonalEventDto, PersonalEvent, PreferredSlot } from '../types';
+import { scheduleConfigApi } from '../api/schedule-config.api';
 import { useNotification } from '@/shared/hooks/useNotification';
-import PageHeader from '@/shared/components/page/PageHeader';
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    return error.response?.data?.message ?? fallback;
+  }
+
+  return error instanceof Error ? error.message : fallback;
+};
 
 const ScheduleConfigPage: React.FC = () => {
-  const dispatch = useAppDispatch();
   const { showNotification } = useNotification();
+  const [personalEvents, setPersonalEvents] = useState<PersonalEvent[]>([]);
+  const [preferredSlot, setPreferredSlot] = useState<PreferredSlot | null>(null);
+  const [avoidDays, setAvoidDays] = useState<number[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
+  const showFetchError = useEffectEvent((error: unknown) => {
+    showNotification(
+      'error',
+      'Không thể tải cấu hình',
+      getErrorMessage(error, 'Không thể tải cấu hình lịch học.'),
+    );
+  });
 
-  const {
-    personalEvents,
-    preferredSlot,
-    avoidDays,
-    fetchStatus,
-    saveStatus,
-    mutateStatus,
-  } = useAppSelector((s) => s.scheduleConfig);
-
-  // Mỗi lần mount → fetch lại từ server (luôn đồng bộ)
   useEffect(() => {
-    dispatch(fetchScheduleConfigThunk());
-  }, [dispatch]);
+    let isMounted = true;
+
+    const fetchScheduleConfig = async () => {
+      try {
+        const [events, preferences] = await Promise.all([
+          scheduleConfigApi.getPersonalEvents(),
+          scheduleConfigApi.getPreferences(),
+        ]);
+
+        if (!isMounted) return;
+
+        setPersonalEvents(events);
+        setPreferredSlot(preferences.preferred_slot ?? null);
+        setAvoidDays(preferences.avoid_days ?? []);
+      } catch (error) {
+        if (isMounted) {
+          showFetchError(error);
+        }
+      } finally {
+        if (isMounted) setIsFetching(false);
+      }
+    };
+
+    void fetchScheduleConfig();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSavePreferences = async () => {
-    // Luôn gửi preferences và avoidDays để backend xoá nếu người dùng bỏ chọn hết
-    const result = await dispatch(
-      savePreferencesThunk({
-        preference: preferredSlot ? { preferred_slot: preferredSlot } : undefined,
-        avoidDays: { days: avoidDays },
-      }),
-    );
-
-    if (savePreferencesThunk.fulfilled.match(result)) {
+    try {
+      setIsSaving(true);
+      await Promise.all([
+        preferredSlot
+          ? scheduleConfigApi.updatePreferences({ preferred_slot: preferredSlot })
+          : Promise.resolve(),
+        scheduleConfigApi.addAvoidDays({ days: avoidDays }),
+      ]);
       showNotification('success', 'Lưu thiết lập thành công!');
-    } else {
-      showNotification('error', 'Lưu thất bại', result.payload as string);
+    } catch (error) {
+      showNotification(
+        'error',
+        'Lưu thất bại',
+        getErrorMessage(error, 'Không thể lưu thiết lập.'),
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleCreateEvent = async (data: CreatePersonalEventDto) => {
-    const result = await dispatch(createPersonalEventThunk(data));
-    if (createPersonalEventThunk.fulfilled.match(result)) {
+    try {
+      setIsMutating(true);
+      const createdEvent = await scheduleConfigApi.createPersonalEvent(data);
+      setPersonalEvents((events) => [...events, createdEvent]);
       showNotification('success', 'Thêm sự kiện thành công!');
-    } else {
-      showNotification('error', 'Thêm thất bại', result.payload as string);
+    } catch (error) {
+      showNotification(
+        'error',
+        'Thêm thất bại',
+        getErrorMessage(error, 'Không thể thêm sự kiện cá nhân.'),
+      );
+      throw error;
+    } finally {
+      setIsMutating(false);
     }
   };
 
   const handleDeleteEvent = async (eventId: number) => {
-    const result = await dispatch(deletePersonalEventThunk(eventId));
-    if (deletePersonalEventThunk.fulfilled.match(result)) {
+    try {
+      setIsMutating(true);
+      await scheduleConfigApi.deletePersonalEvent(eventId);
+      setPersonalEvents((events) =>
+        events.filter((event) => event.event_id !== eventId),
+      );
       showNotification('success', 'Đã xóa sự kiện!');
-    } else {
-      showNotification('error', 'Xóa thất bại', result.payload as string);
+    } catch (error) {
+      showNotification(
+        'error',
+        'Xóa thất bại',
+        getErrorMessage(error, 'Không thể xóa sự kiện cá nhân.'),
+      );
+    } finally {
+      setIsMutating(false);
     }
   };
 
-  if (fetchStatus === 'loading' && personalEvents.length === 0) {
+  if (isFetching) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
         <Spin size="large" />
@@ -75,26 +129,18 @@ const ScheduleConfigPage: React.FC = () => {
     );
   }
 
-  const isMutating = mutateStatus === 'loading';
-  const isSaving = saveStatus === 'loading';
-
   return (
     <div className="w-full">
-      <PageHeader
-        title="Cấu hình Lịch học"
-        subtitle="Thiết lập sở thích và lịch cá nhân để hệ thống sinh lịch phù hợp hơn"
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-0 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-0 gap-8 items-start">
         {/* Left Column: General Preferences */}
         <div className="lg:col-span-7 lg:pr-12 lg:border-r lg:border-gray-100">
           <PreferredSlotSection
             selectedSlot={preferredSlot}
-            onSelect={(slot) => dispatch(setPreferredSlot(slot))}
+            onSelect={setPreferredSlot}
           />
           <AvoidDaysSection
             avoidDays={avoidDays}
-            onChange={(days) => dispatch(setAvoidDays(days))}
+            onChange={setAvoidDays}
           />
         </div>
 

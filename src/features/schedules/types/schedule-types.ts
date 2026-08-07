@@ -14,6 +14,7 @@ export interface ClassScheduleItem {
   room: string;
   instructor: string;
   max_students: number;
+  study_weeks: string;
 }
 
 export interface ScheduleSolution {

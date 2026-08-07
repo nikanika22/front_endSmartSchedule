@@ -1,4 +1,4 @@
-import { Col, Form } from 'antd';
+import { Col, Form,DatePicker } from 'antd';
 import { type FormModalModeType } from '@/shared/types/form-modal-mode-type';
 import RowCustom from '../row/RowCustom';
 import InputCustom from '../input/InputCustom';
@@ -6,6 +6,7 @@ import InputNumberCustom from '../input/InputNumberCustom';
 import InputPasswordCustom from '../input/InputPasswordCustom';
 import { FormFieldType } from '@/shared/types/form-field-type';
 import type { FormField } from '../modal/ModalFormCustom';
+
 
 interface DynamicFormProps<T> {
   fields: FormField<T>[];
@@ -47,6 +48,15 @@ const DynamicForm = <T,>({ fields, disabled, mode }: DynamicFormProps<T>) => {
                       <InputNumberCustom
                         placeholder={field.placeholder}
                         disabled={isDisabled || disabled}
+                      />
+                    );
+                  case FormFieldType.DatePicker:
+                    return (
+                      <DatePicker
+                        className="w-full"
+                        placeholder={field.placeholder || "Chọn ngày..."}
+                        disabled={isDisabled || disabled}
+                        format="YYYY-MM-DD"
                       />
                     );
                   default:

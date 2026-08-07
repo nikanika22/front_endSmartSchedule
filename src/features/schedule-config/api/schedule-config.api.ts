@@ -3,14 +3,31 @@ import type {
   UpdatePreferenceDto, 
   AvoidDaysDto, 
   CreatePersonalEventDto, 
-  PersonalEvent 
+  PersonalEvent,
+  SchedulePreferences,
 } from '../types';
+
+interface ApiResponse<T> {
+  data: T;
+}
+
+const unwrapData = <T>(response: T | ApiResponse<T>): T => {
+  if (
+    typeof response === 'object' &&
+    response !== null &&
+    'data' in response
+  ) {
+    return response.data;
+  }
+
+  return response;
+};
 
 export const scheduleConfigApi = {
   // --- Preferences ---
-  getPreferences: async () => {
+  getPreferences: async (): Promise<SchedulePreferences> => {
     const response = await axiosClient.get('/preferences');
-    return response.data;
+    return unwrapData<SchedulePreferences>(response.data);
   },
 
   updatePreferences: async (data: UpdatePreferenceDto) => {
@@ -24,19 +41,18 @@ export const scheduleConfigApi = {
   },
 
   // --- Personal Events ---
-  getPersonalEvents: async (): Promise<{ data: PersonalEvent[] }> => {
-    // Note: Assuming there is a GET endpoint. If not, this might return 404 until implemented.
+  getPersonalEvents: async (): Promise<PersonalEvent[]> => {
     const response = await axiosClient.get('/personal-events');
-    return response.data;
+    return unwrapData<PersonalEvent[]>(response.data);
   },
 
-  createPersonalEvent: async (data: CreatePersonalEventDto) => {
+  createPersonalEvent: async (data: CreatePersonalEventDto): Promise<PersonalEvent> => {
     const response = await axiosClient.post('/personal-events', data);
-    return response.data;
+    return unwrapData<PersonalEvent>(response.data);
   },
   
   deletePersonalEvent: async (eventId: number) => {
     const response = await axiosClient.delete(`/personal-events/${eventId}`);
     return response.data;
-  }
+  },
 };

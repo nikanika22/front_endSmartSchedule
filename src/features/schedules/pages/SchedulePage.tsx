@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, Button, Progress, Spin, Badge, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
@@ -14,11 +14,23 @@ import RowCustom from '@/shared/components/row/RowCustom';
 import PageHeader from '@/shared/components/page/PageHeader';
 import EmptyCustom from '@/shared/components/empty/EmptyCustom';
 import { Col } from 'antd';
-import type { ClassScheduleItem } from '../types/schedule-types';
+import type { CalendarModalState, ClassScheduleItem } from '../types/schedule-types';
 import type { PersonalEvent } from '@/features/schedule-config/types';
+import { scheduleConfigApi } from '@/features/schedule-config/api/schedule-config.api';
+import type {
+  DateSelectArg,
+  EventClickArg,
+  EventInput,
+} from '@fullcalendar/core';
 
+import CalendarEventModal from '../components/CalendarEventModal';
 // Chuyển day_of_week của DB (2-8: T2-CN) sang index FullCalendar (0-6: CN-T7)
 const getFCDay = (day: number): number => (day === 8 ? 0 : day - 1);
+const initialCalendarModal: CalendarModalState = {
+  open: false,
+  mode: 'create',
+  title: '',
+};
 
 const buildCalendarEvents = (
   classes: ClassScheduleItem[],
@@ -29,7 +41,7 @@ const buildCalendarEvents = (
 
   classes.forEach((cls) => {
     const courseName = cls.course_name || '';
-    const titleText = courseName 
+    const titleText = courseName
       ? `${courseName}\nMã lớp: ${cls.class_id}\nPhòng: ${cls.room || 'N/A'}\nGV: ${cls.instructor || 'N/A'}`
       : `${cls.class_id}\nPhòng: ${cls.room || 'N/A'}\nGV: ${cls.instructor || 'N/A'}`;
     events.push({
@@ -41,6 +53,7 @@ const buildCalendarEvents = (
       borderColor: primaryColor,
       textColor: '#fff',
       extendedProps: { type: 'class' },
+      count: cls.study_weeks,
     });
   });
 
@@ -99,13 +112,40 @@ const SchedulePage: React.FC = () => {
     error,
   } = useAppSelector((s) => s.schedules);
 
-  const [confirmedSchedule, setConfirmedSchedule] = React.useState<any | null>(null);
-  const [fetchStatus, setFetchStatus] = React.useState<'idle' | 'loading' | 'succeeded' | 'failed'>('idle');
-  const [confirmStatus, setConfirmStatus] = React.useState<'idle' | 'loading' | 'succeeded' | 'failed'>('idle');
+  const [confirmedSchedule, setConfirmedSchedule] = useState<any | null>(null);
+  const [fetchStatus, setFetchStatus] = useState<'idle' | 'loading' | 'succeeded' | 'failed'>('idle');
+  const [confirmStatus, setConfirmStatus] = useState<'idle' | 'loading' | 'succeeded' | 'failed'>('idle');
+  const [personalEvents, setPersonalEvents] = useState<PersonalEvent[]>([]);
 
-  const personalEvents = useAppSelector((s) => s.scheduleConfig.personalEvents);
+  const [calendarModal, setCalendarModal] = useState(initialCalendarModal);
 
+  const handleSelectSlot = (info: DateSelectArg) => {
+    setCalendarModal({
+      open: true,
+      title: '',
+      mode: 'create',
+      start: info.start,
+      end: info.end,
+    });
+  };
+  useEffect(() => {
+    let isMounted = true;
 
+    const fetchPersonalEvents = async () => {
+      try {
+        const events = await scheduleConfigApi.getPersonalEvents();
+        if (isMounted) setPersonalEvents(events);
+      } catch (error) {
+        console.error('Không thể tải sự kiện cá nhân:', error);
+      }
+    };
+
+    void fetchPersonalEvents();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (generateStatus === 'failed' && error) {
@@ -181,8 +221,8 @@ const SchedulePage: React.FC = () => {
     );
   }
 
-    //Confirmed schedule (READ-ONLY)
-    if (confirmedSchedule && solutions.length === 0) {
+  //Confirmed schedule (READ-ONLY)
+  if (confirmedSchedule && solutions.length === 0) {
     console.log('Dữ liệu Lịch đã xác nhận (confirmedSchedule) từ BE:', confirmedSchedule);
     const classes: ClassScheduleItem[] = confirmedSchedule.scheduleClasses?.map((sc: any) => ({
       class_id: sc.class_id,
@@ -195,6 +235,7 @@ const SchedulePage: React.FC = () => {
       room: sc.class?.room ?? '',
       instructor: sc.class?.instructor ?? '',
       max_students: sc.class?.max_students ?? 0,
+      study_weeks: sc.class?.study_weeks ?? '',
     })) ?? [];
 
     return (
@@ -211,6 +252,16 @@ const SchedulePage: React.FC = () => {
             slotMaxTime="22:00:00"
             allDaySlot={false}
             height="auto"
+            // cho phép kéo thời gian
+            selectable={true}
+            selectMirror={true}
+            select={(info => {
+              console.log(info);
+              handleSelectSlot(info);
+            })}
+            eventClick={(info) => {
+              console.log("eventClick", info)
+            }}
             locale="vi"
             events={buildCalendarEvents(classes, personalEvents, token.colorPrimary)}
             headerToolbar={{ left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
@@ -232,6 +283,28 @@ const SchedulePage: React.FC = () => {
                   </div>
                 </div>
               );
+            }}
+          />
+          <CalendarEventModal
+            state={calendarModal}
+            setState={setCalendarModal}
+            onSave={() => {
+              setCalendarModal({
+                ...calendarModal,
+                open: false,
+              });
+            }}
+            onDelete={() => {
+              setCalendarModal({
+                ...calendarModal,
+                open: false,
+              });
+            }}
+            onClose={() => {
+              setCalendarModal({
+                ...calendarModal,
+                open: false,
+              });
             }}
           />
         </CardCustom>
@@ -279,8 +352,8 @@ const SchedulePage: React.FC = () => {
         subtitle={`${solutions.length} phương án tối ưu được đề xuất cho bạn`}
         extra={
           <div className="flex gap-3">
-            <Button 
-              danger 
+            <Button
+              danger
               onClick={() => {
                 dispatch(resetSchedules());
               }}

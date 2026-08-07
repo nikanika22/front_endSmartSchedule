@@ -44,4 +44,14 @@ export const courseFormFields: FormField<Course>[] = [
       { max: 100, message: 'Tên khoa không được dài quá 100 ký tự!' }
     ],
   },
+  {
+  name: 'start_day', // 👈 Đặt tên chìa khóa lưu dữ liệu là 'start_day'
+  label: 'Ngày bắt đầu',
+  type: FormFieldType.DatePicker,
+},
+{
+  name: 'end_day',
+  label: 'Ngày kết thúc',
+  type: FormFieldType.DatePicker,
+},
 ];
