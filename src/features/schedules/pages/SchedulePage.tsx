@@ -16,20 +16,24 @@ import EmptyCustom from '@/shared/components/empty/EmptyCustom';
 import { Col } from 'antd';
 import type { CalendarModalState, ClassScheduleItem } from '../types/schedule-types';
 import type { PersonalEvent } from '@/features/schedule-config/types';
-import { scheduleConfigApi } from '@/features/schedule-config/api/schedule-config.api';
 import type {
   DateSelectArg,
-  EventClickArg,
-  EventInput,
 } from '@fullcalendar/core';
-
+import dayjs from 'dayjs';
 import CalendarEventModal from '../components/CalendarEventModal';
+import { scheduleConfigApi } from '@/features/schedule-config/api/schedule-config.api';
+
+
 // Chuyển day_of_week của DB (2-8: T2-CN) sang index FullCalendar (0-6: CN-T7)
 const getFCDay = (day: number): number => (day === 8 ? 0 : day - 1);
 const initialCalendarModal: CalendarModalState = {
   open: false,
   mode: 'create',
   title: '',
+  start_time: '',
+  end_time: '',
+  start_day: '',
+  end_day: '',
 };
 
 const buildCalendarEvents = (
@@ -53,7 +57,8 @@ const buildCalendarEvents = (
       borderColor: primaryColor,
       textColor: '#fff',
       extendedProps: { type: 'class' },
-      count: cls.study_weeks,
+      startRecur: cls.start_date ? dayjs(cls.start_date).format('YYYY-MM-DD') : undefined,
+      endRecur: cls.end_date ? dayjs(cls.end_date).add(1, 'day').format('YYYY-MM-DD') : undefined,
     });
   });
 
@@ -120,13 +125,22 @@ const SchedulePage: React.FC = () => {
   const [calendarModal, setCalendarModal] = useState(initialCalendarModal);
 
   const handleSelectSlot = (info: DateSelectArg) => {
+    const startDayjs = dayjs(info.start);
+    const endDayjs = dayjs(info.end);
+    const startTime = startDayjs.format('HH:mm:ss');
+    const endTime = endDayjs.format('HH:mm:ss');
+    const startDay = startDayjs.format('YYYY-MM-DD');
+    const endDay = endDayjs.format('YYYY-MM-DD');
     setCalendarModal({
       open: true,
       title: '',
       mode: 'create',
-      start: info.start,
-      end: info.end,
+      start_time: startTime,
+      end_time: endTime,
+      start_day: startDay,
+      end_day: endDay,
     });
+    console.log("thong tin", calendarModal);
   };
   useEffect(() => {
     let isMounted = true;
@@ -236,6 +250,9 @@ const SchedulePage: React.FC = () => {
       instructor: sc.class?.instructor ?? '',
       max_students: sc.class?.max_students ?? 0,
       study_weeks: sc.class?.study_weeks ?? '',
+      start_date: sc.class?.start_date ?? '',
+      end_date: sc.class?.end_date ?? '',
+      remaining_students: sc.class?.remaining_students ?? 0,
     })) ?? [];
 
     return (
@@ -288,12 +305,7 @@ const SchedulePage: React.FC = () => {
           <CalendarEventModal
             state={calendarModal}
             setState={setCalendarModal}
-            onSave={() => {
-              setCalendarModal({
-                ...calendarModal,
-                open: false,
-              });
-            }}
+            onSave={scheduleConfigApi.createPersonalEvent}
             onDelete={() => {
               setCalendarModal({
                 ...calendarModal,

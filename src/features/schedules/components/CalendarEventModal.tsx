@@ -2,7 +2,8 @@ import type { Dispatch, SetStateAction } from 'react';
 import { Button, Input, Modal } from 'antd';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import type { CalendarModalState } from '../types/schedule-types';
+import type { CalendarModalState, PersonalEvent } from '../types/schedule-types';
+import type { CreatePersonalEventDto } from '@/features/schedule-config/types';
 
 dayjs.extend(isoWeek);
 
@@ -11,7 +12,7 @@ dayjs.extend(isoWeek);
 type Props = {
     state: CalendarModalState;
     setState: Dispatch<SetStateAction<CalendarModalState>>;
-    onSave: () => void;
+    onSave: (data: CreatePersonalEventDto) => Promise<PersonalEvent>;
     onDelete: () => void;
     onClose: () => void;
 };
@@ -23,20 +24,6 @@ export default function CalendarEventModal({
     onDelete,
     onClose,
 }: Props) {
-    const selectedDate = state.start
-        ? dayjs(state.start)
-        : null;
-
-    const weekNumber = selectedDate?.isoWeek();
-
-    const weekStart = selectedDate
-        ?.startOf('isoWeek')
-        .format('DD/MM/YYYY');
-
-    const weekEnd = selectedDate
-        ?.endOf('isoWeek')
-        .format('DD/MM/YYYY');
-
     return (
         <Modal
             open={state.open}
@@ -53,7 +40,7 @@ export default function CalendarEventModal({
                             Hủy
                         </Button>,
 
-                        <Button key="save" type="primary" onClick={onSave}>
+                        <Button key="save" type="primary" onClick={() => onSave(state as CreatePersonalEventDto)}>
                             Lưu
                         </Button>,
                     ]
@@ -80,22 +67,16 @@ export default function CalendarEventModal({
                 }
             />
 
-            <div className="mt-4">
-                Bắt đầu:{' '}
-                {state.start
-                    ? dayjs(state.start).format('DD/MM/YYYY HH:mm')
-                    : ''}
-            </div>
+            <div className="mt-4 space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                    <span className="w-20 font-medium text-gray-600">Bắt đầu:</span>
+                    <span className="text-gray-800">{state.start_time} {state.start_day}</span>
+                </div>
 
-            <div>
-                Kết thúc:{' '}
-                {state.end
-                    ? dayjs(state.end).format('DD/MM/YYYY HH:mm')
-                    : ''}
-            </div>
-
-            <div className="mt-2">
-                Tuần {weekNumber}: {weekStart} – {weekEnd}
+                <div className="flex items-center gap-2">
+                    <span className="w-20 font-medium text-gray-600">Kết thúc:</span>
+                    <span className="text-gray-800">{state.end_time} {state.end_day}</span>
+                </div>
             </div>
         </Modal>
     );

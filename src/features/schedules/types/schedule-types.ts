@@ -15,6 +15,9 @@ export interface ClassScheduleItem {
   instructor: string;
   max_students: number;
   study_weeks: string;
+  start_date?: string;
+  end_date?: string;
+  remaining_students?: number;
 }
 
 export interface ScheduleSolution {
@@ -34,3 +37,13 @@ export interface ActiveSemester {
   end_date: string;
   is_active: boolean;
 }
+export type CalendarModalState = {
+    open: boolean;
+    mode: 'create' | 'view';
+    eventId?: string;
+    title: string;
+    start_time?: string;
+    end_time?: string;
+    start_day?: string;
+    end_day?: string;
+};

@@ -25,6 +25,8 @@ export interface CreatePersonalEventDto {
   start_time: string;
   end_time: string;
   is_recurring?: boolean;
+  start_day?: string;
+  end_day?: string;
   note?: string;
 }
 
@@ -35,6 +37,8 @@ export interface PersonalEvent {
   day_of_week?: number;
   start_time: string;
   end_time: string;
-  is_recurring: boolean;
+  is_recurring?: boolean;
+  start_day?: string;
+  end_day?: string;
   note?: string;
 }
