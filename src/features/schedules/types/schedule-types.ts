@@ -1,7 +1,10 @@
-import type { PersonalEvent } from '@/features/schedule-config/types';
+import type {
+  CreatePersonalEventDto,
+  PersonalEvent,
+} from '@/features/schedule-config/types';
 
 // Re-export for convenience within the feature
-export type { PersonalEvent };
+export type { CreatePersonalEventDto, PersonalEvent };
 
 export interface ClassScheduleItem {
   class_id: string;
@@ -30,20 +33,42 @@ export interface ScheduleSolution {
   classes: ClassScheduleItem[];
 }
 
-export interface ActiveSemester {
-  semester_id: string;
-  name: string;
-  start_date: string;
-  end_date: string;
-  is_active: boolean;
+interface ConfirmedClassDetails {
+  course_id?: string;
+  course_name?: string;
+  course?: {
+    course_name?: string;
+  };
+  day_of_week?: number;
+  start_time?: string;
+  end_time?: string;
+  room?: string;
+  instructor?: string;
+  max_students?: number;
+  study_weeks?: string;
+  start_date?: string;
+  end_date?: string;
+  remaining_students?: number;
 }
-export type CalendarModalState = {
-    open: boolean;
-    mode: 'create' | 'view';
-    eventId?: string;
-    title: string;
-    start_time?: string;
-    end_time?: string;
-    start_date?: string;
-    end_date?: string;
-};
+
+interface ConfirmedScheduleClass {
+  class_id: string;
+  class?: ConfirmedClassDetails;
+}
+
+export interface ConfirmedSchedule {
+  schedule_id?: number;
+  semester_id: string;
+  scheduleClasses?: ConfirmedScheduleClass[];
+}
+
+export interface CalendarModalState {
+  open: boolean;
+  title: string;
+  start_time?: string;
+  end_time?: string;
+  start_date?: string;
+  end_date?: string;
+  eventId?: number;
+  type?: 'class' | 'personal';
+}
