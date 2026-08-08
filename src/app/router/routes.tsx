@@ -12,6 +12,7 @@ import SchedulePage from '@/features/schedules/pages/SchedulePage';
 import ProfilePage from '@/features/auth/pages/ProfilePage';
 import CourseClassPage from '@/features/courses/pages/CourseClassPage';
 import ImportSchedulePage from '@/features/upload/pages/ImportSchedulePage';
+import StudentListPage from '@/features/students/pages/StudentListPage';
 
 export const router = createBrowserRouter([
   /******************** AUTH *********************/
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
            {
             path: '/profile',
             element: <ProfilePage/>
+           },
+           {
+            path: '/students',
+            element: <StudentListPage />
            }
      ],
       },

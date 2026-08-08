@@ -28,3 +28,4 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requireAuth = true }) =
 };
 
 export default ProtectedRoute;
+

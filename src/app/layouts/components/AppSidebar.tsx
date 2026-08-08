@@ -2,13 +2,13 @@ import { Image, Layout, Menu, type MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
-
   SolutionOutlined,
   ReadOutlined,
   SettingOutlined,
   PlusOutlined,
   UserAddOutlined,
   CloudUploadOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import STU_Logo from '@/assets/images/imageSTU.png';
 import { USER_ROLE, type UserRole } from '@/features/students/user-role-type'
@@ -54,6 +54,12 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed }) => {
       key: "/import-schedule",
       icon: <CloudUploadOutlined />,
       label: "Import Thời khóa biểu",
+      roles: [USER_ROLE.ADMIN]
+    },
+    {
+      key: "/students",
+      icon: <TeamOutlined />,
+      label: "Quản lý sinh viên",
       roles: [USER_ROLE.ADMIN]
     },
     {
