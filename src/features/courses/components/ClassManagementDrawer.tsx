@@ -31,42 +31,34 @@ const ClassManagementDrawer: React.FC<ClassManagementDrawerProps> = ({
   const [form] = Form.useForm();
   const [semesters, setSemesters] = useState<any[]>([]);
 
-  const fetchSemesters = async () => {
-    try {
-      const res = await semesterApi.getAll();
-      setSemesters(res.data || res);
-    } catch (error) {
-      console.error('Lỗi khi tải học kỳ:', error);
-    }
-  };
-
   useEffect(() => {
-    fetchSemesters();
+    semesterApi.getAll()
+      .then((res) => setSemesters(res.data || res))
+      .catch((err) => console.error('Lỗi khi tải học kỳ:', err));
   }, []);
 
-  const fetchClasses = async () => {
-    if (!courseId) return;
-    try {
-      setLoading(true);
-      const res = await courseApi.getDetail(courseId);
-      // Giả sử API trả về course detail có chứa mảng classes
-      const courseData = res.data || res;
-      console.log('classes in dong 54', courseData.classes);
-      setClasses(courseData.classes || []);
-    } catch (error) {
-      console.error('Lỗi khi tải danh sách lớp:', error);
-      showNotification('error', 'Lỗi', 'Không thể tải danh sách lớp học');
-    } finally {
-      setLoading(false);
-    }
+  const fetchClasses = (id: string) => {
+    setLoading(true);
+    courseApi.getDetail(id)
+      .then((res) => {
+        const courseData = res.data || res;
+        console.log('classes in dong 54', courseData.classes);
+        setClasses(courseData.classes || []);
+      })
+      .catch((err) => {
+        console.error('Lỗi khi tải danh sách lớp:', err);
+        showNotification('error', 'Lỗi', 'Không thể tải danh sách lớp học');
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     if (open && courseId) {
-      fetchClasses();
+      fetchClasses(courseId);
     } else {
       setClasses([]); // Reset khi đóng
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, courseId]);
 
   const handleAddClass = () => {

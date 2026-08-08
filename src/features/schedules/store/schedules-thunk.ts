@@ -1,11 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { scheduleApi } from '../api/schedule-api';
+
 export const generateScheduleThunk = createAsyncThunk(
   'schedules/generate',
   async (_, thunkAPI) => {
     try {
-      const result = await scheduleApi.generateSchedules();
-      return { result };
+      return await scheduleApi.generateSchedules();
     } catch (error: any) {
       const errorMsg =
         error?.response?.data?.error?.message ||
