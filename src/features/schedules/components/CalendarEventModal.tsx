@@ -70,12 +70,12 @@ export default function CalendarEventModal({
             <div className="mt-4 space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                     <span className="w-20 font-medium text-gray-600">Bắt đầu:</span>
-                    <span className="text-gray-800">{state.start_time} {state.start_day}</span>
+                    <span className="text-gray-800">{state.start_time} {state.start_date}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <span className="w-20 font-medium text-gray-600">Kết thúc:</span>
-                    <span className="text-gray-800">{state.end_time} {state.end_day}</span>
+                    <span className="text-gray-800">{state.end_time} {state.end_date}</span>
                 </div>
             </div>
         </Modal>

@@ -44,6 +44,6 @@ export type CalendarModalState = {
     title: string;
     start_time?: string;
     end_time?: string;
-    start_day?: string;
-    end_day?: string;
+    start_date?: string;
+    end_date?: string;
 };

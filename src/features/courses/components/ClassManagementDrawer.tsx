@@ -51,6 +51,7 @@ const ClassManagementDrawer: React.FC<ClassManagementDrawerProps> = ({
       const res = await courseApi.getDetail(courseId);
       // Giả sử API trả về course detail có chứa mảng classes
       const courseData = res.data || res;
+      console.log('classes in dong 54', courseData.classes);
       setClasses(courseData.classes || []);
     } catch (error) {
       console.error('Lỗi khi tải danh sách lớp:', error);
@@ -163,6 +164,13 @@ const ClassManagementDrawer: React.FC<ClassManagementDrawerProps> = ({
       width: 110,
     },
     {
+      title: 'Đã đăng ký',
+      dataIndex: 'enrolled_count',
+      align: 'center' as const,
+      width: 100,
+    },
+
+    {
       title: 'Tác vụ',
       align: 'center' as const,
       width: 120,
@@ -227,7 +235,7 @@ const ClassManagementDrawer: React.FC<ClassManagementDrawerProps> = ({
           <Form.Item name="class_id" label="Mã nhóm lớp" rules={[{ required: true, message: 'Vui lòng nhập mã nhóm lớp' }]}>
             <Input disabled={!!editingClass} placeholder="VD: SE102_HTTT_01" />
           </Form.Item>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <Form.Item name="semester_id" label="Học kỳ" rules={[{ required: true, message: 'Vui lòng chọn học kỳ' }]}>
               <Select placeholder="Chọn học kỳ">
@@ -254,7 +262,7 @@ const ClassManagementDrawer: React.FC<ClassManagementDrawerProps> = ({
             <Form.Item name="start_time" label="Giờ bắt đầu" rules={[{ required: true, message: 'Vui lòng chọn giờ' }]}>
               <TimePicker format="HH:mm:ss" className="w-full" placeholder="07:30:00" />
             </Form.Item>
-            
+
             <Form.Item name="end_time" label="Giờ kết thúc" rules={[{ required: true, message: 'Vui lòng chọn giờ' }]}>
               <TimePicker format="HH:mm:ss" className="w-full" placeholder="11:30:00" />
             </Form.Item>

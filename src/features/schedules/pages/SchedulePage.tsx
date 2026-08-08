@@ -32,8 +32,8 @@ const initialCalendarModal: CalendarModalState = {
   title: '',
   start_time: '',
   end_time: '',
-  start_day: '',
-  end_day: '',
+  start_date: '',
+  end_date: '',
 };
 
 const buildCalendarEvents = (
@@ -129,16 +129,16 @@ const SchedulePage: React.FC = () => {
     const endDayjs = dayjs(info.end);
     const startTime = startDayjs.format('HH:mm:ss');
     const endTime = endDayjs.format('HH:mm:ss');
-    const startDay = startDayjs.format('YYYY-MM-DD');
-    const endDay = endDayjs.format('YYYY-MM-DD');
+    const startDate = startDayjs.format('YYYY-MM-DD');
+    const endDate = endDayjs.format('YYYY-MM-DD');
     setCalendarModal({
       open: true,
       title: '',
       mode: 'create',
       start_time: startTime,
       end_time: endTime,
-      start_day: startDay,
-      end_day: endDay,
+      start_date: startDate,
+      end_date: endDate,
     });
     console.log("thong tin", calendarModal);
   };

@@ -8,6 +8,7 @@ export interface Class {
   room: string;
   instructor: string;
   max_students: number;
+  enrolled_count?: number;
 }
 
 export interface Course{
