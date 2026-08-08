@@ -55,4 +55,9 @@ export const scheduleConfigApi = {
     const response = await axiosClient.delete(`/personal-events/${eventId}`);
     return response.data;
   },
+
+  updatePersonalEvent: async (eventId: number, data: Partial<CreatePersonalEventDto>): Promise<PersonalEvent> => {
+    const response = await axiosClient.patch(`/personal-events/${eventId}`, data);
+    return unwrapData<PersonalEvent>(response.data);
+  },
 };
