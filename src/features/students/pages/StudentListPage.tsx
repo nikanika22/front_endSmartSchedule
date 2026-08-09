@@ -24,6 +24,10 @@ const StudentListPage = () => {
       dataIndex: 'email',
     },
     {
+      title: 'Role',
+      dataIndex: 'role',
+    },
+    {
       title: 'Thao tác',
       key: 'actions',
       align: 'center' as const,
