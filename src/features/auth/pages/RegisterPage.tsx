@@ -42,16 +42,11 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ isAdminMode = false }) => {
         }),
       ).unwrap();
 
-      if (isAdminMode) {
-        showNotification('success', 'Thành công', 'Đã cấp tài khoản Admin mới thành công!');
-        form.resetFields();
-      } else {
-        // Lưu email để dùng khi confirm OTP, mở modal
-        setPendingEmail(values.email);
-        setOtp('');
-        setOtpModalOpen(true);
-        showNotification('info', 'Kiểm tra email', 'Mã xác minh 6 số đã được gửi đến email của bạn.');
-      }
+      // Lưu email để dùng khi confirm OTP, mở modal cho cả Student và Admin
+      setPendingEmail(values.email);
+      setOtp('');
+      setOtpModalOpen(true);
+      showNotification('info', 'Kiểm tra email', 'Mã xác minh 6 số đã được gửi đến email.');
     } catch (error: any) {
       const errorMsg = Array.isArray(error) ? error.join(', ') : error;
       showNotification('error', 'Đăng ký thất bại', errorMsg || 'Đã xảy ra lỗi. Vui lòng thử lại.');
@@ -67,8 +62,16 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ isAdminMode = false }) => {
       setConfirmLoading(true);
       await confirmRegistrationApi({ email: pendingEmail, otp });
       setOtpModalOpen(false);
-      showNotification('success', 'Xác minh thành công', 'Tài khoản đã được kích hoạt. Vui lòng đăng nhập.');
-      navigate('/auth/login', { replace: true });
+
+      if (isAdminMode) {
+        showNotification('success', 'Thành công', 'Đã cấp và xác minh tài khoản Admin mới.');
+        form.resetFields();
+        setPendingEmail('');
+        setOtp('');
+      } else {
+        showNotification('success', 'Xác minh thành công', 'Tài khoản đã được kích hoạt. Vui lòng đăng nhập.');
+        navigate('/auth/login', { replace: true });
+      }
     } catch (error: any) {
       const msg = error?.response?.data?.error?.message || 'Mã xác minh không đúng hoặc đã hết hạn.';
       showNotification('error', 'Xác minh thất bại', msg);
