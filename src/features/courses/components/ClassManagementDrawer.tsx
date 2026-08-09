@@ -82,7 +82,7 @@ const ClassManagementDrawer: React.FC<ClassManagementDrawerProps> = ({
       setLoading(true);
       await classApi.delete(classId);
       showNotification('success', 'Thành công', 'Đã xóa lớp học');
-      fetchClasses();
+      if (courseId) fetchClasses(courseId);
     } catch (error: any) {
       showNotification('error', 'Lỗi', error?.response?.data?.error?.message || 'Xóa lớp học thất bại');
     } finally {
@@ -109,7 +109,7 @@ const ClassManagementDrawer: React.FC<ClassManagementDrawerProps> = ({
         showNotification('success', 'Thành công', 'Đã thêm lớp học mới');
       }
       setIsModalOpen(false);
-      fetchClasses();
+      if (courseId) fetchClasses(courseId);
     } catch (error: any) {
       if (error?.errorFields) return; // Lỗi validate form
       showNotification('error', 'Lỗi', error?.response?.data?.error?.message || 'Lưu lớp học thất bại');

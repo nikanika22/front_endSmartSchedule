@@ -4,12 +4,12 @@ export const useNotification = () => {
   const { notification } = App.useApp();
 
   const showNotification = (
-    type: 'success' | 'error' | 'warning',
+    type: 'success' | 'error' | 'warning' | 'info',
     title: string,
     description?: string,
   ) => {
     notification[type]({
-      title,
+      message: title,
       description,
     });
   };

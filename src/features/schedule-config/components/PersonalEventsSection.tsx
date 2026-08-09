@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Drawer, Form, Input, Select, TimePicker, Typography, Popconfirm, theme } from 'antd';
+import { Button, DatePicker, Drawer, Form, Input, Select, TimePicker, Typography, Popconfirm, theme } from 'antd';
 import { PlusOutlined, DeleteOutlined, ClockCircleOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import type { CreatePersonalEventDto, PersonalEvent } from '../types';
-import type { Dayjs } from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 
 const { Text } = Typography;
 const { RangePicker } = TimePicker;
@@ -29,13 +29,22 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
   const [form] = Form.useForm();
   const { token } = theme.useToken();
 
-  const handleSubmit = async (values: { title: string; day_of_week?: number; time: [Dayjs, Dayjs]; is_recurring?: boolean; note?: string }) => {
+  const handleSubmit = async (values: {
+    title: string;
+    day_of_week?: number;
+    time: [Dayjs, Dayjs];
+    date_range: [Dayjs, Dayjs];
+    is_recurring?: boolean;
+    note?: string;
+  }) => {
     try {
       const dto: CreatePersonalEventDto = {
         title: values.title,
         day_of_week: values.day_of_week,
         start_time: values.time[0].format('HH:mm:00'),
         end_time: values.time[1].format('HH:mm:00'),
+        start_date: values.date_range[0].format('YYYY-MM-DD'),
+        end_date: values.date_range[1].format('YYYY-MM-DD'),
         is_recurring: values.is_recurring !== undefined ? values.is_recurring : true,
         note: values.note,
       };
@@ -121,6 +130,11 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
                   <span className="flex items-center gap-1.5">
                     <ClockCircleOutlined style={{ color: token.colorPrimary }} className="text-xs" /> {item.start_time.slice(0, 5)} - {item.end_time.slice(0, 5)}
                   </span>
+                  {item.start_date && (
+                    <span className="text-[11px] text-slate-400">
+                      ({dayjs(item.start_date).format('DD/MM/YYYY')} - {dayjs(item.end_date || item.start_date).format('DD/MM/YYYY')})
+                    </span>
+                  )}
                 </div>
                 {item.note && (
                   <div className="mt-1.5 text-[11px] text-slate-400/90 italic">
@@ -196,6 +210,19 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
           </Form.Item>
           
           <Form.Item 
+            label={<span className="font-medium text-xs text-slate-500">THỜI GIAN ÁP DỤNG (BẮT ĐẦU & KẾT THÚC)</span>}
+            name="date_range" 
+            rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu và kết thúc' }]}
+          >
+            <DatePicker.RangePicker 
+              size="large" 
+              className="w-full rounded-lg text-sm h-10" 
+              format="DD/MM/YYYY" 
+              placeholder={['Ngày bắt đầu', 'Ngày kết thúc']} 
+            />
+          </Form.Item>
+
+          <Form.Item 
             label={<span className="font-medium text-xs text-slate-500">THỨ TRONG TUẦN</span>}
             name="day_of_week" 
             rules={[{ required: true, message: 'Vui lòng chọn thứ trong tuần' }]}
@@ -233,3 +260,4 @@ export const PersonalEventsSection: React.FC<Props> = ({ events, onCreate, onDel
     </div>
   );
 };
+
