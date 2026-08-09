@@ -11,6 +11,10 @@ export const registerApi= async(payload: RegisterApiPayload)=>{
     const res=await axiosClient.post(`${VITE_API_URL}/register`,payload)
     return res.data
 }
+export const confirmRegistrationApi = async (payload: { email: string; otp: string }) => {
+    const res = await axiosClient.post(`${VITE_API_URL}/register/confirm`, payload)
+    return res.data
+}
 export const updateMeApi = async (payload: UpdateMePayload) => {
     const res = await axiosClient.patch(`${VITE_API_URL}/me`, payload)
     return res.data
