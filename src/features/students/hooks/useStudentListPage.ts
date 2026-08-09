@@ -1,29 +1,40 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import type { Student } from '../types/students-type';
 import { studentsApi } from '../api/students-api';
 import { useNotification } from '@/shared/hooks/useNotification';
 
 export const useStudentListPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { showNotification } = useNotification();
 
-  const fetchStudents = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await studentsApi.getAll();
-      setStudents(data);
-    } catch {
-      showNotification('error', 'Lỗi', 'Không thể tải danh sách sinh viên.');
-    } finally {
-      setLoading(false);
-    }
-  }, [showNotification]);
-
   useEffect(() => {
-    fetchStudents();
-  }, [fetchStudents]);
+    let cancelled = false;
+
+    const fetchStudents = async () => {
+      try {
+        const data = await studentsApi.getAll();
+        if (!cancelled) {
+          setStudents(data);
+        }
+      } catch {
+        if (!cancelled) {
+          showNotification('error', 'Lỗi', 'Không thể tải danh sách sinh viên.');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void fetchStudents();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showNotification]);
 
   const handleDelete = async (studentId: string) => {
     setDeletingId(studentId);
