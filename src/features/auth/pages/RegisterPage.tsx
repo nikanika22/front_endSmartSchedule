@@ -81,28 +81,28 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ isAdminMode = false }) => {
     <div className={isAdminMode ? "flex justify-center w-full" : ""}>
       <CardCustom className={isAdminMode ? "w-full max-w-150 mt-8 bg-white rounded-3xl p-6 sm:p-8 shadow-sm" : "w-full max-w-105 mx-auto border border-white/60 bg-white/80! backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-4 sm:p-6"}>
 
-      {/* TABS */}
-      {!isAdminMode && (
-        <div className="flex mb-8 relative">
-          <div className="absolute bottom-0 w-full h-0.5 bg-gray-100/50 rounded-full"></div>
-          <Link to="/auth/login" className="flex-1 pb-3 text-center border-b-2 border-transparent text-gray-400! hover:text-gray-700! font-medium text-base transition-all relative z-10">Đăng nhập</Link>
-          <Link to="/auth/register" className="flex-1 pb-3 text-center border-b-2 border-[#1f3568] text-[#1f3568]! font-bold text-base transition-all relative z-10">Đăng ký</Link>
-        </div>
-      )}
+        {/* TABS */}
+        {!isAdminMode && (
+          <div className="flex mb-8 relative">
+            <div className="absolute bottom-0 w-full h-0.5 bg-gray-100/50 rounded-full"></div>
+            <Link to="/auth/login" className="flex-1 pb-3 text-center border-b-2 border-transparent text-gray-400! hover:text-gray-700! font-medium text-base transition-all relative z-10">Đăng nhập</Link>
+            <Link to="/auth/register" className="flex-1 pb-3 text-center border-b-2 border-[#1f3568] text-[#1f3568]! font-bold text-base transition-all relative z-10">Đăng ký</Link>
+          </div>
+        )}
 
-      {/* FORM */}
-      <ConfigProvider theme={{ components: { Input: { borderRadius: 12, controlHeight: 44, colorBorder: '#e5e7eb', activeBorderColor: '#1f3568', hoverBorderColor: '#1f3568' } } }}>
-        <Form form={form} layout="vertical" autoComplete="off" onFinish={onFinish}>
-          <DynamicForm<RegisterPayload> fields={registerFormFields} />
+        {/* FORM */}
+        <ConfigProvider theme={{ components: { Input: { borderRadius: 12, controlHeight: 44, colorBorder: '#e5e7eb', activeBorderColor: '#1f3568', hoverBorderColor: '#1f3568' } } }}>
+          <Form form={form} layout="vertical" autoComplete="off" onFinish={onFinish}>
+            <DynamicForm<RegisterPayload> fields={registerFormFields} />
 
-          {/* SUBMIT */}
-          <Form.Item className="mb-2">
-            <Button loading={loading} htmlType="submit" type="primary" block className="bg-[#1f3568]! hover:bg-[#152446]! border-none! h-11 rounded-xl text-base font-semibold shadow-lg shadow-blue-900/20 transition-all">
-              {isAdminMode ? 'Cấp tài khoản Admin' : 'Đăng ký'}
-            </Button>
-          </Form.Item>
-        </Form>
-      </ConfigProvider>
+            {/* SUBMIT */}
+            <Form.Item className="mb-2">
+              <Button loading={loading} htmlType="submit" type="primary" block className="bg-[#1f3568]! hover:bg-[#152446]! border-none! h-11 rounded-xl text-base font-semibold shadow-lg shadow-blue-900/20 transition-all">
+                {isAdminMode ? 'Cấp tài khoản Admin' : 'Đăng ký'}
+              </Button>
+            </Form.Item>
+          </Form>
+        </ConfigProvider>
 
       </CardCustom>
 
@@ -122,7 +122,6 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ isAdminMode = false }) => {
         maskClosable={false}
       >
         <div className="text-center text-sm text-slate-500 mb-5">
-          Mã xác minh 6 số đã được gửi tới<br />
           <span className="font-semibold text-slate-700">{pendingEmail}</span>
         </div>
 
@@ -142,12 +141,12 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ isAdminMode = false }) => {
           size="large"
           loading={confirmLoading}
           onClick={handleConfirmOtp}
-          className="bg-[#1f3568]! hover:bg-[#152446]! border-none! rounded-xl font-semibold"
+          className="bg-[#1f3568]! hover:bg-[#152446]! border-none! mt-5 rounded-xl font-semibold"
         >
           Xác minh
         </Button>
 
-        <div className="text-center mt-3 text-xs text-slate-400">
+        <div className="text-center mt-5 text-xs text-slate-400">
           Mã có hiệu lực trong <span className="text-slate-600 font-medium">5 phút</span>
         </div>
       </Modal>
