@@ -12,6 +12,7 @@ export const courseFormFields: FormField<Course>[] = [
     disabled: ({ mode }: FormContext) => mode === FormModalMode.EDIT,
     rules: [
       { required: true, message: 'Vui lòng nhập mã khóa học!' },
+      { pattern: /^CS\d{5}$/, message: 'Mã môn học không hợp lệ. Định dạng ví dụ: CS03001 (CS và 5 số đằng sau)!' },
       { max: 20, message: 'Mã khóa học không được dài quá 20 ký tự!' }
     ],
   },
