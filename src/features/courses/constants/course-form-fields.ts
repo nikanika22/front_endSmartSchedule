@@ -45,13 +45,13 @@ export const courseFormFields: FormField<Course>[] = [
     ],
   },
   {
-  name: 'start_day', // 👈 Đặt tên chìa khóa lưu dữ liệu là 'start_day'
-  label: 'Ngày bắt đầu',
-  type: FormFieldType.DatePicker,
-},
-{
-  name: 'end_day',
-  label: 'Ngày kết thúc',
-  type: FormFieldType.DatePicker,
-},
+    name: 'start_date',
+    label: 'Ngày bắt đầu',
+    type: FormFieldType.DatePicker,
+  },
+  {
+    name: 'end_date',
+    label: 'Ngày kết thúc',
+    type: FormFieldType.DatePicker,
+  },
 ];

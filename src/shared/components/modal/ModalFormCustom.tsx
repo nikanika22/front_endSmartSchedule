@@ -6,6 +6,7 @@ import { Button, Form, Tabs } from 'antd';
 import DynamicForm from '../form/DynamicForm';
 import type { FormFieldTypeKey } from '@/shared/types/form-field-type';
 import type { ElementType } from 'react';
+import dayjs from 'dayjs';
 
 export interface FormContext {
   mode?: FormModalModeType;
@@ -70,16 +71,27 @@ const ModalFormCustom = <T,>({
     }
 
     if (initialValues) {
-      form.setFieldsValue(initialValues);
+      const formattedValues = { ...initialValues } as any;
+      if (formattedValues.start_date) formattedValues.start_date = dayjs(formattedValues.start_date);
+      if (formattedValues.end_date) formattedValues.end_date = dayjs(formattedValues.end_date);
+      form.setFieldsValue(formattedValues);
     }
-  }, [open, initialValues, sections, form]);
+  }, [open, initialValues, form]);
 
   const handleSubmit = async (values: T) => {
     try {
       setLoading(true);
 
+      const payload = { ...values } as any;
+      if (payload.start_date && dayjs.isDayjs(payload.start_date)) {
+        payload.start_date = payload.start_date.format('YYYY-MM-DD');
+      }
+      if (payload.end_date && dayjs.isDayjs(payload.end_date)) {
+        payload.end_date = payload.end_date.format('YYYY-MM-DD');
+      }
+
       if (onSubmit) {
-        await onSubmit(values);
+        await onSubmit(payload as T);
       }
 
       showNotification('success', 'Thành công', 'Dữ liệu đã được lưu thành công');
@@ -93,7 +105,7 @@ const ModalFormCustom = <T,>({
       showNotification(
         'error',
         'Lỗi',
-        error?.response?.data?.message || 'Không thể lưu dữ liệu. Vui lòng thử lại',
+        error?.response?.data?.message || error?.response?.data?.error?.message || 'Không thể lưu dữ liệu. Vui lòng thử lại',
       );
     } finally {
       setLoading(false);

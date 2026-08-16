@@ -17,6 +17,6 @@ export interface Course{
        credits:number;
        department: string;
        classes?: Class[];
-       start_day?: Date;
-       end_day?: Date;
+       start_date?: string | Date;
+       end_date?: string | Date;
 }
