@@ -68,9 +68,9 @@ export default function CalendarEventModal({
             onConfirm={handleDelete}
             okText="Xóa"
             cancelText="Hủy"
-            okButtonProps={{ danger: true, loading: isDeleting }}
+            okButtonProps={{ danger: true }}
           >
-            <Button danger style={{ float: 'left' }} loading={isDeleting}>
+            <Button danger style={{ float: 'left' }}>
               Xóa sự kiện
             </Button>
           </Popconfirm>
@@ -78,7 +78,7 @@ export default function CalendarEventModal({
         <Button key="cancel" onClick={onClose}>
           Hủy
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSave} loading={isSaving}>
+        <Button key="submit" type="primary" onClick={handleSave}>
           {isEdit ? 'Cập nhật' : 'Lưu'}
         </Button>,
       ]}
