@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { Button, Input, Modal, Popconfirm } from 'antd';
 import type {
@@ -21,22 +22,34 @@ export default function CalendarEventModal({
   onClose,
 }: Props) {
   const isEdit = Boolean(state.eventId);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleSave = () => {
-    if (!state.start_time || !state.end_time) return;
+  const handleSave = async () => {
+    if (!state.start_time || !state.end_time || isSaving) return;
 
-    void onSave({
-      title: state.title,
-      start_time: state.start_time,
-      end_time: state.end_time,
-      start_date: state.start_date,
-      end_date: state.end_date,
-    });
+    try {
+      setIsSaving(true);
+      await onSave({
+        title: state.title,
+        start_time: state.start_time,
+        end_time: state.end_time,
+        start_date: state.start_date,
+        end_date: state.end_date,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleDelete = () => {
-    if (state.eventId && onDelete) {
-      void onDelete(state.eventId);
+  const handleDelete = async () => {
+    if (!state.eventId || !onDelete || isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+      await onDelete(state.eventId);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -45,6 +58,7 @@ export default function CalendarEventModal({
       open={state.open}
       title={isEdit ? 'Chi tiết sự kiện cá nhân' : 'Đăng ký khung giờ'}
       onCancel={onClose}
+      loading={isSaving || isDeleting}
       footer={[
         isEdit && onDelete && (
           <Popconfirm
@@ -54,9 +68,9 @@ export default function CalendarEventModal({
             onConfirm={handleDelete}
             okText="Xóa"
             cancelText="Hủy"
-            okButtonProps={{ danger: true }}
+            okButtonProps={{ danger: true, loading: isDeleting }}
           >
-            <Button danger style={{ float: 'left' }}>
+            <Button danger style={{ float: 'left' }} loading={isDeleting}>
               Xóa sự kiện
             </Button>
           </Popconfirm>
@@ -64,7 +78,7 @@ export default function CalendarEventModal({
         <Button key="cancel" onClick={onClose}>
           Hủy
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSave}>
+        <Button key="submit" type="primary" onClick={handleSave} loading={isSaving}>
           {isEdit ? 'Cập nhật' : 'Lưu'}
         </Button>,
       ]}
@@ -94,3 +108,4 @@ export default function CalendarEventModal({
     </Modal>
   );
 }
+
